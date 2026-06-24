@@ -83,7 +83,7 @@ def _load_pygeodesy_symbol(module_name: str, symbol_name: str):
 _py_parse_mgrs = _load_pygeodesy_symbol("pygeodesy.mgrs", "parseMGRS")
 _py_parse_utm = _load_pygeodesy_symbol("pygeodesy.utm", "parseUTM5")
 _py_to_utm = _load_pygeodesy_symbol("pygeodesy.utm", "toUtm8")
-_py_to_mgrs = _load_pygeodesy_symbol("pygeodesy", "toMgrs")
+_py_mgrs_from_utm = _load_pygeodesy_symbol("pygeodesy.mgrs", "toMgrs")
 
 
 # -----------------------------
@@ -539,8 +539,10 @@ def format_coordinate_outputs(lat_dd: float, lon_dd: float) -> FormattedCoordina
             mgrs_value = STATUS_PYGEODESY_REQUIRED
         else:
             try:
-                if _py_to_mgrs is not None:
-                    mgrs_value = str(_py_to_mgrs(lat_dd, lon_dd))
+                if _py_mgrs_from_utm is not None:
+                    # Preferred API path verified by user:
+                    # UTM object from toUtm8 -> pygeodesy.mgrs.toMgrs(utm_obj).
+                    mgrs_value = str(_py_mgrs_from_utm(utm_obj))
                 elif hasattr(utm_obj, "toMgrs"):
                     mgrs_value = str(utm_obj.toMgrs())
                 else:
