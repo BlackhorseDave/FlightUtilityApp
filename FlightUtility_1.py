@@ -184,28 +184,62 @@ def _parse_ddm(text: str) -> CoordinateResult | None:
     Supported examples:
     - 06°35.154'N 003°33.938'E
     - 06 35.154 N 003 33.938 E
+    - N04:05.667 E004:45.877
+    - N04 05.667 E004 45.877
+    - 04:05.667N 004:45.877E
+    - 04 05.667N 004 45.877E
+    - N04°05.667' E004°45.877'
+    - 04 05.667 N 004 45.877 E
+    - N 04 05.667 E 004 45.877
 
-    The regex allows symbols/spaces between numeric groups while still enforcing
-    hemisphere letters and expected component ordering.
+    Internal DDM examples for quick manual testing:
+    - 06°35.154'N 003°33.938'E
+    - N06:35.154 E003:33.938
+    - 06 35.154N 003 33.938E
+
+    This branch accepts either suffix hemispheres (06 35.154 N) or prefix
+    hemispheres (N 06 35.154). In both cases the numeric interpretation remains
+    degrees plus decimal minutes, which then converts to decimal degrees.
     """
-    pattern = re.compile(
+    suffix_pattern = re.compile(
         r"^\s*"
-        r"(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)\s*([NS])\s+"
-        r"(\d{1,3})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)\s*([EW])"
+        r"(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*([NS])\s+"
+        r"(\d{1,3})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*([EW])"
         r"\s*$",
         flags=re.IGNORECASE,
     )
-    match = pattern.match(text)
-    if not match:
-        return None
+    prefix_pattern = re.compile(
+        r"^\s*"
+        r"([NS])\s*(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s+"
+        r"([EW])\s*(\d{1,3})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*"
+        r"\s*$",
+        flags=re.IGNORECASE,
+    )
 
-    lat_deg = int(match.group(1))
-    lat_min = float(match.group(2))
-    lat_hemi = match.group(3).upper()
+    # Match the long-standing suffix form first so prior behavior is preserved.
+    match = suffix_pattern.match(text)
+    if match:
+        lat_deg = int(match.group(1))
+        lat_min = float(match.group(2))
+        lat_hemi = match.group(3).upper()
 
-    lon_deg = int(match.group(4))
-    lon_min = float(match.group(5))
-    lon_hemi = match.group(6).upper()
+        lon_deg = int(match.group(4))
+        lon_min = float(match.group(5))
+        lon_hemi = match.group(6).upper()
+    else:
+        # Prefix-hemisphere DDM inputs use the same degrees/minutes math, only
+        # the hemisphere letter moves ahead of each numeric pair.
+        match = prefix_pattern.match(text)
+        if not match:
+            return None
+
+        lat_hemi = match.group(1).upper()
+        lat_deg = int(match.group(2))
+        lat_min = float(match.group(3))
+
+        lon_hemi = match.group(4).upper()
+        lon_deg = int(match.group(5))
+        lon_min = float(match.group(6))
 
     is_valid_ms, message = _validate_minute_second(lat_min, None)
     if not is_valid_ms:
