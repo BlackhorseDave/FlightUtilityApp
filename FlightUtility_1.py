@@ -82,7 +82,7 @@ def _load_pygeodesy_symbol(module_name: str, symbol_name: str):
 
 _py_parse_mgrs = _load_pygeodesy_symbol("pygeodesy.mgrs", "parseMGRS")
 _py_parse_utm = _load_pygeodesy_symbol("pygeodesy.utm", "parseUTM5")
-_py_to_utm = _load_pygeodesy_symbol("pygeodesy.utm", "toUtm8")
+_py_to_utm = _load_pygeodesy_symbol("pygeodesy", "toUtm8") or _load_pygeodesy_symbol("pygeodesy.utm", "toUtm8")
 _py_mgrs_from_utm = _load_pygeodesy_symbol("pygeodesy.mgrs", "toMgrs")
 
 
@@ -524,31 +524,17 @@ def format_coordinate_outputs(lat_dd: float, lon_dd: float) -> FormattedCoordina
 
     # UTM/MGRS are derived from the same decimal-degree baseline so existing
     # behavior stays unchanged for all prior formats.
-    if _py_to_utm is None:
+    if _py_to_utm is None or _py_mgrs_from_utm is None:
         utm_value = STATUS_PYGEODESY_REQUIRED
         mgrs_value = STATUS_PYGEODESY_REQUIRED
     else:
         try:
             utm_obj = _py_to_utm(lat_dd, lon_dd)
             utm_value = str(utm_obj)
+            mgrs_value = str(_py_mgrs_from_utm(utm_obj))
         except Exception:
-            utm_obj = None
             utm_value = STATUS_PYGEODESY_REQUIRED
-
-        if utm_obj is None:
             mgrs_value = STATUS_PYGEODESY_REQUIRED
-        else:
-            try:
-                if _py_mgrs_from_utm is not None:
-                    # Preferred API path verified by user:
-                    # UTM object from toUtm8 -> pygeodesy.mgrs.toMgrs(utm_obj).
-                    mgrs_value = str(_py_mgrs_from_utm(utm_obj))
-                elif hasattr(utm_obj, "toMgrs"):
-                    mgrs_value = str(utm_obj.toMgrs())
-                else:
-                    mgrs_value = STATUS_MGRS_EXPERIMENTAL
-            except Exception:
-                mgrs_value = STATUS_MGRS_EXPERIMENTAL
 
     return FormattedCoordinate(
         decimal_degrees=decimal_degrees,
