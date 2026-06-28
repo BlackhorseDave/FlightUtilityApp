@@ -4,7 +4,7 @@ Flight Utility App (MVP)
 A small offline desktop utility built with Python standard library + tkinter.
 Features:
 - Coordinate parsing and format conversion
-- Fuel unit conversion for Jet A and Avgas
+- Fuel unit conversion for aviation and bulk freight fuels
 - Basic aviation time calculations
 """
 
@@ -42,6 +42,8 @@ STATUS_MGRS_EXPERIMENTAL = "MGRS output placeholder: requires PyGeodesy MGRS API
 FUEL_DENSITY_KG_PER_L = {
     "Jet A": 0.80,
     "Avgas": 0.72,
+    "Regular Gasoline": 0.74,
+    "Diesel": 0.84,
 }
 
 KG_PER_POUND = 0.45359237
@@ -581,49 +583,159 @@ def convert_fuel_values(input_unit: str, input_value: float, fuel_type: str) -> 
 # -----------------------------
 # Time helpers
 # -----------------------------
-def _parse_hhmm_clock(value: str) -> int:
-    """Parse HH:MM in 24-hour clock format and return total minutes."""
-    match = re.match(r"^(\d{1,2}):(\d{2})$", value.strip())
-    if not match:
+def _parse_duration_token(token: str) -> tuple[float, bool]:
+    """Parse one duration token as decimal hours; return (value, was_hhmm)."""
+    token = token.strip()
+    if not token:
         raise ValueError(STATUS_INVALID_TIME)
 
-    hours = int(match.group(1))
-    minutes = int(match.group(2))
+    if ":" in token:
+        match = re.match(r"^(\d+):(\d{2})$", token)
+        if not match:
+            raise ValueError(STATUS_INVALID_TIME)
+        hours = int(match.group(1))
+        minutes = int(match.group(2))
+        if not (0 <= minutes <= 59):
+            raise ValueError(STATUS_INVALID_TIME)
+        return hours + (minutes / 60.0), True
 
-    if not (0 <= hours <= 23 and 0 <= minutes <= 59):
+    if not re.match(r"^(?:\d+(?:\.\d+)?|\.\d+)$", token):
         raise ValueError(STATUS_INVALID_TIME)
 
-    return hours * 60 + minutes
+    return float(token), False
 
 
-def _parse_hhmm_duration(value: str) -> int:
-    """Parse HH:MM duration and return total minutes (hours may exceed 23)."""
-    match = re.match(r"^(\d+):(\d{2})$", value.strip())
-    if not match:
+def _decimal_hours_to_hhmm(value: float) -> str:
+    """Format decimal hours as signed H:MM duration (no 24h wrapping)."""
+    sign = "-" if value < 0 else ""
+    total_minutes = int(round(abs(value) * 60.0))
+    hours = total_minutes // 60
+    minutes = total_minutes % 60
+    return f"{sign}{hours}:{minutes:02d}"
+
+
+def _format_decimal_hours(value: float) -> str:
+    """Format decimal hours consistently for the calculator display."""
+    return f"{value:.2f}"
+
+
+def _format_numeric_result(value: float) -> str:
+    """Format generic numeric output, trimming trailing decimal zeros."""
+    if abs(value - round(value)) < 1e-10:
+        return str(int(round(value)))
+    return f"{value:.10f}".rstrip("0").rstrip(".")
+
+
+def _normalize_expression(expr: str) -> str:
+    """Normalize user-visible operators to internal arithmetic operators."""
+    return expr.replace("×", "*").replace("÷", "/").replace("−", "-")
+
+
+def _evaluate_duration_expression(expression: str) -> tuple[float, str]:
+    """Evaluate a duration expression and return result + preferred output style."""
+    cleaned = _normalize_expression(expression).replace(" ", "")
+    if not cleaned:
         raise ValueError(STATUS_INVALID_TIME)
 
-    hours = int(match.group(1))
-    minutes = int(match.group(2))
-
-    if hours < 0 or not (0 <= minutes <= 59):
+    token_pattern = r"\d+:\d{2}|\d+(?:\.\d+)?|\.\d+|[+\-*/]"
+    tokens = re.findall(token_pattern, cleaned)
+    if not tokens or "".join(tokens) != cleaned:
         raise ValueError(STATUS_INVALID_TIME)
 
-    return hours * 60 + minutes
+    precedence = {"+": 1, "-": 1, "*": 2, "/": 2}
+    values: list[float] = []
+    operators: list[str] = []
+    hhmm_count = 0
+    decimal_count = 0
+    first_style: str | None = None
+    expect_value = True
+    unary_sign = 1.0
+
+    def apply_top_operator() -> None:
+        if len(values) < 2 or not operators:
+            raise ValueError(STATUS_INVALID_TIME)
+        right = values.pop()
+        left = values.pop()
+        op = operators.pop()
+        if op == "+":
+            values.append(left + right)
+        elif op == "-":
+            values.append(left - right)
+        elif op == "*":
+            values.append(left * right)
+        elif op == "/":
+            if abs(right) < 1e-12:
+                raise ValueError(STATUS_INVALID_TIME)
+            values.append(left / right)
+        else:
+            raise ValueError(STATUS_INVALID_TIME)
+
+    for token in tokens:
+        if expect_value:
+            if token in precedence:
+                # Allow unary signs directly in front of value tokens.
+                if token == "-":
+                    unary_sign *= -1.0
+                    continue
+                if token == "+":
+                    continue
+                raise ValueError(STATUS_INVALID_TIME)
+
+            decimal_hours, was_hhmm = _parse_duration_token(token)
+            if was_hhmm:
+                hhmm_count += 1
+                if first_style is None:
+                    first_style = "hhmm"
+            elif "." in token:
+                decimal_count += 1
+                if first_style is None:
+                    first_style = "decimal"
+            values.append(unary_sign * decimal_hours)
+            unary_sign = 1.0
+            expect_value = False
+        else:
+            if token not in precedence:
+                raise ValueError(STATUS_INVALID_TIME)
+
+            while operators and precedence[operators[-1]] >= precedence[token]:
+                apply_top_operator()
+            operators.append(token)
+            expect_value = True
+
+    if expect_value:
+        raise ValueError(STATUS_INVALID_TIME)
+
+    while operators:
+        apply_top_operator()
+
+    if len(values) != 1:
+        raise ValueError(STATUS_INVALID_TIME)
+
+    if hhmm_count > decimal_count:
+        preferred_style = "hhmm"
+    elif decimal_count > hhmm_count:
+        preferred_style = "decimal"
+    elif hhmm_count == 0 and decimal_count == 0:
+        preferred_style = "numeric"
+    else:
+        preferred_style = first_style or "numeric"
+
+    return values[0], preferred_style
 
 
-def _format_minutes_to_hhmm(minutes_total: int) -> str:
-    """Format minutes to HH:MM using 24-hour wrapping."""
-    normalized = minutes_total % (24 * 60)
-    hours = normalized // 60
-    minutes = normalized % 60
-    return f"{hours:02d}:{minutes:02d}"
+def _parse_single_duration_value(value: str) -> tuple[float, bool]:
+    """Parse a single signed value used by the ': to .' conversion button."""
+    cleaned = value.strip()
+    if not cleaned:
+        raise ValueError(STATUS_INVALID_TIME)
 
+    sign = 1.0
+    if cleaned[0] in "+-":
+        sign = -1.0 if cleaned[0] == "-" else 1.0
+        cleaned = cleaned[1:]
 
-def _format_elapsed(minutes_total: int) -> str:
-    """Format elapsed minutes as HH:MM (not wrapped to 24h)."""
-    hours = minutes_total // 60
-    minutes = minutes_total % 60
-    return f"{hours:02d}:{minutes:02d}"
+    decimal_hours, was_hhmm = _parse_duration_token(cleaned)
+    return sign * decimal_hours, was_hhmm
 
 
 # -----------------------------
@@ -844,114 +956,168 @@ class FlightUtilityApp(tk.Tk):
     # -------- Time tab --------
     def _build_time_tab(self) -> None:
         frame = self.time_tab
-        frame.grid_columnconfigure(1, weight=1)
+        for col in range(4):
+            frame.grid_columnconfigure(col, weight=1)
 
-        current_row = 0
-
-        ttk.Label(frame, text="Add Time").grid(row=current_row, column=0, sticky="w", pady=(0, 4))
-        current_row += 1
-
-        self.add_start_var = tk.StringVar()
-        self.add_duration_var = tk.StringVar()
-        self.add_result_var = tk.StringVar()
-
-        ttk.Label(frame, text="Start time HH:MM").grid(row=current_row, column=0, sticky="w", pady=2)
-        ttk.Entry(frame, textvariable=self.add_start_var, width=18).grid(row=current_row, column=1, sticky="w", pady=2)
-        current_row += 1
-
-        ttk.Label(frame, text="Duration HH:MM").grid(row=current_row, column=0, sticky="w", pady=2)
-        ttk.Entry(frame, textvariable=self.add_duration_var, width=18).grid(row=current_row, column=1, sticky="w", pady=2)
-        current_row += 1
-
-        ttk.Button(frame, text="Calculate Add", command=self.on_add_time).grid(
-            row=current_row, column=0, sticky="w", pady=4
-        )
-        ttk.Label(frame, text="Result HH:MM").grid(row=current_row, column=1, sticky="w", padx=(120, 0))
-        ttk.Entry(frame, textvariable=self.add_result_var, width=12, state="readonly").grid(
-            row=current_row, column=1, sticky="w", padx=(210, 0)
-        )
-        current_row += 2
-
-        ttk.Label(frame, text="Subtract Time").grid(row=current_row, column=0, sticky="w", pady=(6, 4))
-        current_row += 1
-
-        self.sub_start_var = tk.StringVar()
-        self.sub_duration_var = tk.StringVar()
-        self.sub_result_var = tk.StringVar()
-
-        ttk.Label(frame, text="Start time HH:MM").grid(row=current_row, column=0, sticky="w", pady=2)
-        ttk.Entry(frame, textvariable=self.sub_start_var, width=18).grid(row=current_row, column=1, sticky="w", pady=2)
-        current_row += 1
-
-        ttk.Label(frame, text="Duration HH:MM").grid(row=current_row, column=0, sticky="w", pady=2)
-        ttk.Entry(frame, textvariable=self.sub_duration_var, width=18).grid(row=current_row, column=1, sticky="w", pady=2)
-        current_row += 1
-
-        ttk.Button(frame, text="Calculate Subtract", command=self.on_subtract_time).grid(
-            row=current_row, column=0, sticky="w", pady=4
-        )
-        ttk.Label(frame, text="Result HH:MM").grid(row=current_row, column=1, sticky="w", padx=(120, 0))
-        ttk.Entry(frame, textvariable=self.sub_result_var, width=12, state="readonly").grid(
-            row=current_row, column=1, sticky="w", padx=(210, 0)
-        )
-        current_row += 2
-
-        ttk.Label(frame, text="Elapsed Time").grid(row=current_row, column=0, sticky="w", pady=(6, 4))
-        current_row += 1
-
-        self.el_start_var = tk.StringVar()
-        self.el_end_var = tk.StringVar()
-        self.el_result_var = tk.StringVar()
-
-        ttk.Label(frame, text="Start time HH:MM").grid(row=current_row, column=0, sticky="w", pady=2)
-        ttk.Entry(frame, textvariable=self.el_start_var, width=18).grid(row=current_row, column=1, sticky="w", pady=2)
-        current_row += 1
-
-        ttk.Label(frame, text="End time HH:MM").grid(row=current_row, column=0, sticky="w", pady=2)
-        ttk.Entry(frame, textvariable=self.el_end_var, width=18).grid(row=current_row, column=1, sticky="w", pady=2)
-        current_row += 1
-
-        ttk.Button(frame, text="Calculate Elapsed", command=self.on_elapsed_time).grid(
-            row=current_row, column=0, sticky="w", pady=4
-        )
-        ttk.Label(frame, text="Elapsed HH:MM").grid(row=current_row, column=1, sticky="w", padx=(120, 0))
-        ttk.Entry(frame, textvariable=self.el_result_var, width=12, state="readonly").grid(
-            row=current_row, column=1, sticky="w", padx=(210, 0)
+        ttk.Label(frame, text="Duration Calculator").grid(
+            row=0, column=0, columnspan=4, sticky="w", pady=(0, 6)
         )
 
-    def on_add_time(self) -> None:
+        self.time_expression = ""
+        self.time_result_shown = False
+
+        self.time_display = tk.Text(frame, height=5, wrap="word")
+        self.time_display.grid(row=1, column=0, columnspan=4, sticky="nsew", pady=(0, 10))
+        self.time_display.configure(state="disabled")
+        self._set_time_display_lines(["Enter a duration expression", "Examples: 1:30 + 2.25", ""])
+
+        button_rows = [
+            ["7", "8", "9", "÷"],
+            ["4", "5", "6", "×"],
+            ["1", "2", "3", "−"],
+            ["0", ".", ":", "+"],
+            ["C", "←", ": to .", "="],
+        ]
+
+        start_row = 2
+        for row_offset, labels in enumerate(button_rows):
+            row_index = start_row + row_offset
+            frame.grid_rowconfigure(row_index, weight=1)
+            for col_index, label in enumerate(labels):
+                ttk.Button(
+                    frame,
+                    text=label,
+                    command=lambda value=label: self.on_time_button(value),
+                    width=10,
+                ).grid(
+                    row=row_index,
+                    column=col_index,
+                    sticky="nsew",
+                    padx=3,
+                    pady=3,
+                    ipady=8,
+                )
+
+    def _set_time_display_lines(self, lines: list[str]) -> None:
+        self.time_display.configure(state="normal")
+        self.time_display.delete("1.0", tk.END)
+        self.time_display.insert("1.0", "\n".join(lines))
+        self.time_display.configure(state="disabled")
+
+    def _refresh_time_expression_display(self) -> None:
+        expression = self.time_expression if self.time_expression else "0"
+        self._set_time_display_lines([expression])
+
+    def _append_time_value_char(self, char: str) -> None:
+        if self.time_result_shown:
+            self.time_expression = ""
+            self.time_result_shown = False
+
+        self.time_expression += char
+        self._refresh_time_expression_display()
+
+    def _append_time_operator(self, operator: str) -> None:
+        if not self.time_expression:
+            if operator == "−":
+                self.time_expression = "-"
+                self._refresh_time_expression_display()
+            return
+
+        if self.time_expression[-1] in "+-*/×÷−":
+            self.time_expression = f"{self.time_expression[:-1]}{operator}"
+        else:
+            self.time_expression += operator
+
+        self.time_result_shown = False
+        self._refresh_time_expression_display()
+
+    def _clear_time_expression(self) -> None:
+        self.time_expression = ""
+        self.time_result_shown = False
+        self._refresh_time_expression_display()
+        self.set_status(STATUS_READY)
+
+    def _backspace_time_expression(self) -> None:
+        if self.time_result_shown:
+            self._clear_time_expression()
+            return
+
+        if self.time_expression:
+            self.time_expression = self.time_expression[:-1]
+            self._refresh_time_expression_display()
+
+    def _convert_time_value(self) -> None:
+        if not self.time_expression.strip():
+            self.set_status(STATUS_INVALID_TIME)
+            return
+
         try:
-            start_minutes = _parse_hhmm_clock(self.add_start_var.get())
-            duration_minutes = _parse_hhmm_duration(self.add_duration_var.get())
+            decimal_hours, was_hhmm = _parse_single_duration_value(self.time_expression)
         except ValueError:
             self.set_status(STATUS_INVALID_TIME)
             return
 
-        self.add_result_var.set(_format_minutes_to_hhmm(start_minutes + duration_minutes))
+        if was_hhmm:
+            self.time_expression = _format_decimal_hours(decimal_hours)
+        else:
+            self.time_expression = _decimal_hours_to_hhmm(decimal_hours)
+
+        self.time_result_shown = False
+        self._refresh_time_expression_display()
         self.set_status(STATUS_TIME_SUCCESS)
 
-    def on_subtract_time(self) -> None:
-        try:
-            start_minutes = _parse_hhmm_clock(self.sub_start_var.get())
-            duration_minutes = _parse_hhmm_duration(self.sub_duration_var.get())
-        except ValueError:
+    def _evaluate_time_expression(self) -> None:
+        expression = self.time_expression.strip()
+        if not expression:
             self.set_status(STATUS_INVALID_TIME)
             return
 
-        self.sub_result_var.set(_format_minutes_to_hhmm(start_minutes - duration_minutes))
-        self.set_status(STATUS_TIME_SUCCESS)
-
-    def on_elapsed_time(self) -> None:
         try:
-            start_minutes = _parse_hhmm_clock(self.el_start_var.get())
-            end_minutes = _parse_hhmm_clock(self.el_end_var.get())
+            result_hours, preferred_style = _evaluate_duration_expression(expression)
         except ValueError:
             self.set_status(STATUS_INVALID_TIME)
+            self._set_time_display_lines([expression, "Error: invalid time expression"])
             return
 
-        elapsed = (end_minutes - start_minutes) % (24 * 60)
-        self.el_result_var.set(_format_elapsed(elapsed))
+        if preferred_style == "hhmm":
+            result_value = _decimal_hours_to_hhmm(result_hours)
+            self._set_time_display_lines([f"{expression} =", result_value])
+            self.time_expression = result_value
+        elif preferred_style == "decimal":
+            result_value = _format_decimal_hours(result_hours)
+            self._set_time_display_lines([f"{expression} =", result_value])
+            self.time_expression = result_value
+        else:
+            result_value = _format_numeric_result(result_hours)
+            self._set_time_display_lines([f"{expression} =", result_value])
+            self.time_expression = result_value
+
+        self.time_result_shown = True
         self.set_status(STATUS_TIME_SUCCESS)
+
+    def on_time_button(self, label: str) -> None:
+        if label in {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", ":"}:
+            self._append_time_value_char(label)
+            return
+
+        if label in {"+", "−", "×", "÷"}:
+            self._append_time_operator(label)
+            return
+
+        if label == "C":
+            self._clear_time_expression()
+            return
+
+        if label == "←":
+            self._backspace_time_expression()
+            return
+
+        if label == ": to .":
+            self._convert_time_value()
+            return
+
+        if label == "=":
+            self._evaluate_time_expression()
 
 
 def main() -> None:
