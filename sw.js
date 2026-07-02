@@ -1,4 +1,4 @@
-const CACHE_NAME = "flight-utility-pwa-v1";
+const CACHE_NAME = "flight-utility-pwa-v2";
 const APP_ASSETS = [
   "./",
   "./index.html",

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#111827">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Flight Utility">
@@ -25,7 +25,7 @@
       <nav class="tabs" aria-label="Utility tabs">
         <button class="tab-button active" type="button" data-tab="coordinates">Coordinates</button>
         <button class="tab-button" type="button" data-tab="fuel">Fuel</button>
-        <button class="tab-button" type="button" data-tab="time">Time</button>
+        <button class="tab-button" type="button" data-tab="time">Time / Calculator</button>
       </nav>
 
       <section id="coordinates" class="tab-panel active" aria-labelledby="coordinates-tab">
@@ -120,7 +120,7 @@
       <section id="time" class="tab-panel" aria-labelledby="time-tab">
         <div class="time-display" aria-live="polite">
           <span id="timeExpression">0</span>
-          <strong id="timeResult">Enter a duration expression</strong>
+          <strong id="timeResult">0</strong>
         </div>
         <div class="calculator-grid" id="timeButtons">
           <button type="button">7</button>

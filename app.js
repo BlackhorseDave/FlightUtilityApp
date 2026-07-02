@@ -517,7 +517,7 @@ function wireTime() {
 
   function refresh() {
     expressionEl.textContent = expression || "0";
-    if (!resultShown) resultEl.textContent = expression || "Enter a duration expression";
+    if (!resultShown) resultEl.textContent = expression || "0";
   }
 
   function appendValue(char) {

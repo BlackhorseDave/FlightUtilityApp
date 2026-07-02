@@ -28,6 +28,7 @@ button,
 input,
 select {
   font: inherit;
+  touch-action: manipulation;
 }
 
 button {
