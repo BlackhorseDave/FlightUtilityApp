@@ -315,12 +315,43 @@ function parseCompactAviation(text) {
   return { detectedFormat: "Compact Aviation DMS", latitudeDd: latDd, longitudeDd: lonDd };
 }
 
+function parseMgrs(text) {
+  const cleaned = text.trim().toUpperCase().replace(/\s+/g, "");
+
+  if (!window.mgrs || typeof window.mgrs.toPoint !== "function") {
+    fail(STATUS_BROWSER_GEODESY_PENDING);
+  }
+
+  // Basic MGRS shape:
+  // Zone number 1-60, band letter C-X excluding I/O, grid square, then even number of digits.
+  if (!/^[0-9]{1,2}[C-HJ-NP-X][A-HJ-NP-Z]{2}[0-9]{2,10}$/.test(cleaned)) {
+    return null;
+  }
+
+  const point = window.mgrs.toPoint(cleaned);
+
+  if (!Array.isArray(point) || point.length < 2) {
+    fail(STATUS_INVALID_COORDINATE);
+  }
+
+  const lonDd = Number(point[0]);
+  const latDd = Number(point[1]);
+
+  validateRange(latDd, lonDd);
+
+  return {
+    detectedFormat: "MGRS",
+    latitudeDd: latDd,
+    longitudeDd: lonDd
+  };
+}
+
 function parseCoordinateText(text) {
   const cleaned = text.trim();
   if (!cleaned) fail(STATUS_INVALID_COORDINATE);
 
   let validationError = null;
-  for (const parser of [parseDecimalDegrees, parseDdm, parseDms, parseCompactAviation]) {
+  for (const parser of [parseDecimalDegrees, parseDdm, parseDms, parseCompactAviation, parseMgrs]) {
     try {
       const result = parser(cleaned);
       if (result) return result;
