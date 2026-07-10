@@ -26,6 +26,113 @@ const KG_PER_POUND = 0.45359237;
 const LITERS_PER_US_GALLON = 3.785411784;
 const LITERS_PER_IMP_GALLON = 4.54609;
 
+// UTM/MGRS support notes:
+// - Decimal degrees remain the app's internal baseline format.
+// - UTM conversion is done locally with WGS84 math in JavaScript.
+// - MGRS conversion uses the local offline lib/mgrs.js file.
+// - No online APIs or CDN calls are used.
+
+const WGS84_A = 6378137.0;
+const WGS84_ECC_SQUARED = 0.00669438;
+const UTM_K0 = 0.9996;
+
+function getUtmZoneNumber(lonDd) {
+  return Math.floor((lonDd + 180) / 6) + 1;
+}
+
+function getUtmBandLetter(latDd) {
+  if (latDd < -80 || latDd > 84) return "";
+
+  const bands = "CDEFGHJKLMNPQRSTUVWX";
+  const index = Math.floor((latDd + 80) / 8);
+  return bands[Math.min(index, bands.length - 1)];
+}
+
+function latLonToUtm(latDd, lonDd) {
+  // UTM conversion from decimal degrees to WGS84 UTM.
+  // Valid for normal UTM coverage: 80S to 84N.
+  if (latDd < -80 || latDd > 84) {
+    throw new Error("UTM is only valid from 80°S to 84°N");
+  }
+
+  const zoneNumber = getUtmZoneNumber(lonDd);
+  const zoneLetter = getUtmBandLetter(latDd);
+  const lonOrigin = (zoneNumber - 1) * 6 - 180 + 3;
+
+  const latRad = latDd * Math.PI / 180;
+  const lonRad = lonDd * Math.PI / 180;
+  const lonOriginRad = lonOrigin * Math.PI / 180;
+
+  const eccPrimeSquared = WGS84_ECC_SQUARED / (1 - WGS84_ECC_SQUARED);
+  const n = WGS84_A / Math.sqrt(1 - WGS84_ECC_SQUARED * Math.sin(latRad) ** 2);
+  const t = Math.tan(latRad) ** 2;
+  const c = eccPrimeSquared * Math.cos(latRad) ** 2;
+  const a = Math.cos(latRad) * (lonRad - lonOriginRad);
+
+  const m = WGS84_A * (
+    (1 - WGS84_ECC_SQUARED / 4 - 3 * WGS84_ECC_SQUARED ** 2 / 64 - 5 * WGS84_ECC_SQUARED ** 3 / 256) * latRad
+    - (3 * WGS84_ECC_SQUARED / 8 + 3 * WGS84_ECC_SQUARED ** 2 / 32 + 45 * WGS84_ECC_SQUARED ** 3 / 1024) * Math.sin(2 * latRad)
+    + (15 * WGS84_ECC_SQUARED ** 2 / 256 + 45 * WGS84_ECC_SQUARED ** 3 / 1024) * Math.sin(4 * latRad)
+    - (35 * WGS84_ECC_SQUARED ** 3 / 3072) * Math.sin(6 * latRad)
+  );
+
+  let easting = UTM_K0 * n * (
+    a + (1 - t + c) * a ** 3 / 6
+    + (5 - 18 * t + t ** 2 + 72 * c - 58 * eccPrimeSquared) * a ** 5 / 120
+  ) + 500000.0;
+
+  let northing = UTM_K0 * (
+    m + n * Math.tan(latRad) * (
+      a ** 2 / 2
+      + (5 - t + 9 * c + 4 * c ** 2) * a ** 4 / 24
+      + (61 - 58 * t + t ** 2 + 600 * c - 330 * eccPrimeSquared) * a ** 6 / 720
+    )
+  );
+
+  if (latDd < 0) {
+    northing += 10000000.0;
+  }
+
+  easting = Math.round(easting);
+  northing = Math.round(northing);
+
+  return {
+    zoneNumber,
+    zoneLetter,
+    easting,
+    northing,
+    display: `Zone ${zoneNumber}${zoneLetter} ${easting}E ${northing}N`,
+    compact: `${zoneNumber}${zoneLetter} ${easting} ${northing}`
+  };
+}
+
+function latLonToMgrs(latDd, lonDd) {
+  // MGRS conversion happens here.
+  // The local lib/mgrs.js file exposes window.mgrs.
+  if (!window.mgrs || typeof window.mgrs.forward !== "function") {
+    return STATUS_BROWSER_GEODESY_PENDING;
+  }
+
+  return window.mgrs.forward([lonDd, latDd], 5);
+}
+
+function formatUtmMgrsOutputs(latDd, lonDd) {
+  try {
+    const utm = latLonToUtm(latDd, lonDd);
+    const mgrsValue = latLonToMgrs(latDd, lonDd);
+
+    return {
+      utm: `${utm.display} | ${utm.compact}`,
+      mgrs: mgrsValue
+    };
+  } catch (error) {
+    return {
+      utm: error.message || STATUS_BROWSER_GEODESY_PENDING,
+      mgrs: error.message || STATUS_BROWSER_GEODESY_PENDING
+    };
+  }
+}
+
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => Array.from(document.querySelectorAll(selector));
 
@@ -236,6 +343,7 @@ function formatCoordinateOutputs(latDd, lonDd) {
   const lonDms = decimalToDmsComponents(lonDd);
   const latDdm = decimalToDdmComponents(latDd);
   const lonDdm = decimalToDdmComponents(lonDd);
+  const utmMgrs = formatUtmMgrsOutputs(latDd, lonDd);
 
   return {
     decimalDegrees: `${latDd.toFixed(6)}, ${lonDd.toFixed(6)}`,
@@ -243,8 +351,8 @@ function formatCoordinateOutputs(latDd, lonDd) {
     degreesMinutesSeconds: `${padInt(latDms.degrees, 2)}°${padInt(latDms.minutes, 2)}'${fixedPad(latDms.seconds, 5, 2)}"${latHemi}\n${padInt(lonDms.degrees, 3)}°${padInt(lonDms.minutes, 2)}'${fixedPad(lonDms.seconds, 5, 2)}"${lonHemi}`,
     compactAviationDms: `${padInt(latDms.degrees, 2)}${padInt(latDms.minutes, 2)}${fixedPad(latDms.seconds, 5, 2)}${latHemi} ${padInt(lonDms.degrees, 3)}${padInt(lonDms.minutes, 2)}${fixedPad(lonDms.seconds, 5, 2)}${lonHemi}`,
     foreflightFormat: `${padInt(latDms.degrees, 2)}${padInt(latDms.minutes, 2)}${fixedPad(latDms.seconds, 5, 2)}${latHemi}/${padInt(lonDms.degrees, 3)}${padInt(lonDms.minutes, 2)}${fixedPad(lonDms.seconds, 5, 2)}${lonHemi}`,
-    utm: STATUS_BROWSER_GEODESY_PENDING,
-    mgrs: STATUS_BROWSER_GEODESY_PENDING,
+    utm: utmMgrs.utm,
+    mgrs: utmMgrs.mgrs,
   };
 }
 
