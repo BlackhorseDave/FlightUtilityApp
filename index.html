@@ -23,16 +23,16 @@
       </header>
 
       <nav class="tabs" aria-label="Utility tabs">
-        <button class="tab-button active" type="button" data-tab="coordinates">Coordinates</button>
+        <button class="tab-button active" type="button" data-tab="time">Time / Calculator</button>
         <button class="tab-button" type="button" data-tab="fuel">Fuel</button>
-        <button class="tab-button" type="button" data-tab="time">Time / Calculator</button>
+        <button class="tab-button" type="button" data-tab="coordinates">Coordinates</button>
       </nav>
 
-      <section id="coordinates" class="tab-panel active" aria-labelledby="coordinates-tab">
+      <section id="coordinates" class="tab-panel" aria-labelledby="coordinates-tab">
         <div class="input-stack">
-          <label for="coordInput">Paste coordinate</label>
+          <label for="coordInput">Enter / Paste coordinate</label>
           <div class="input-action-row">
-            <input id="coordInput" type="text" inputmode="text" autocomplete="off" placeholder="063509.24N 0033356.29E">
+            <input id="coordInput" type="text" inputmode="text" autocomplete="off" >
             <button id="coordParse" class="primary-button" type="button">Parse</button>
           </div>
           <div class="button-row">
@@ -117,7 +117,7 @@
         <p id="fuelStatus" class="status-line">Ready</p>
       </section>
 
-      <section id="time" class="tab-panel" aria-labelledby="time-tab">
+      <section id="time" class="tab-panel active" aria-labelledby="time-tab">
         <div class="time-display" aria-live="polite">
           <span id="timeExpression">0</span>
           <strong id="timeResult">0</strong>
