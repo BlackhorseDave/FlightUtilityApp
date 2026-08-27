@@ -36,8 +36,33 @@ const WGS84_A = 6378137.0;
 const WGS84_ECC_SQUARED = 0.00669438;
 const UTM_K0 = 0.9996;
 
-function getUtmZoneNumber(lonDd) {
-  return Math.floor((lonDd + 180) / 6) + 1;
+
+function getUtmZoneNumber(latDd, lonDd) {
+  if (lonDd === 180) {
+    return 60;
+  }
+
+  let zoneNumber = Math.floor((lonDd + 180) / 6) + 1;
+
+  // Norway exception
+  if (latDd >= 56 && latDd < 64 && lonDd >= 3 && lonDd < 12) {
+    zoneNumber = 32;
+  }
+
+  // Svalbard exceptions
+  if (latDd >= 72 && latDd <= 84) {
+    if (lonDd >= 0 && lonDd < 9) {
+      zoneNumber = 31;
+    } else if (lonDd >= 9 && lonDd < 21) {
+      zoneNumber = 33;
+    } else if (lonDd >= 21 && lonDd < 33) {
+      zoneNumber = 35;
+    } else if (lonDd >= 33 && lonDd < 42) {
+      zoneNumber = 37;
+    }
+  }
+
+  return zoneNumber;
 }
 
 function getUtmBandLetter(latDd) {
@@ -55,7 +80,7 @@ function latLonToUtm(latDd, lonDd) {
     throw new Error("UTM is only valid from 80°S to 84°N");
   }
 
-  const zoneNumber = getUtmZoneNumber(lonDd);
+  const zoneNumber = getUtmZoneNumber(latDd, lonDd);
   const zoneLetter = getUtmBandLetter(latDd);
   const lonOrigin = (zoneNumber - 1) * 6 - 180 + 3;
 
@@ -307,20 +332,83 @@ function fixedPad(value, width, decimals) {
   return value.toFixed(decimals).padStart(width, "0");
 }
 
+
 function parseDecimalDegrees(text) {
-  const match = text.match(/^\s*([+-]?\d+(?:\.\d+)?)\s*[, ]+\s*([+-]?\d+(?:\.\d+)?)\s*$/i);
-  if (!match) return null;
-  const latDd = Number(match[1]);
-  const lonDd = Number(match[2]);
+  const signedPattern =
+    /^\s*([+-]?\d+(?:\.\d+)?)\s*,\s*([+-]?\d+(?:\.\d+)?)\s*$/i;
+
+
+  const suffixPattern =
+    /^\s*(\d{1,2}(?:\.\d+)?)\s*([NS])(?:\s*,\s*|\s+)(\d{1,3}(?:\.\d+)?)\s*([EW])\s*$/i;
+
+  const prefixPattern =
+    /^\s*([NS])\s*(\d{1,2}(?:\.\d+)?)(?:\s*,\s*|\s+)([EW])\s*(\d{1,3}(?:\.\d+)?)\s*$/i;
+
+
+  let match = text.match(signedPattern);
+  let latDd;
+  let lonDd;
+
+  if (match) {
+    latDd = Number(match[1]);
+    lonDd = Number(match[2]);
+  } else {
+    match = text.match(suffixPattern);
+
+    if (match) {
+      latDd = dmsToDecimal(
+        Number(match[1]),
+        0,
+        0,
+        match[2].toUpperCase()
+      );
+      lonDd = dmsToDecimal(
+        Number(match[3]),
+        0,
+        0,
+        match[4].toUpperCase()
+      );
+    } else {
+      match = text.match(prefixPattern);
+      if (!match) return null;
+
+      latDd = dmsToDecimal(
+        Number(match[2]),
+        0,
+        0,
+        match[1].toUpperCase()
+      );
+      lonDd = dmsToDecimal(
+        Number(match[4]),
+        0,
+        0,
+        match[3].toUpperCase()
+      );
+    }
+  }
+
   validateRange(latDd, lonDd);
-  return { detectedFormat: "Decimal Degrees", latitudeDd: latDd, longitudeDd: lonDd };
+
+  return {
+    detectedFormat: "Decimal Degrees",
+    latitudeDd: latDd,
+    longitudeDd: lonDd,
+  };
 }
 
 function parseDdm(text) {
-  const suffixPattern = /^\s*(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*([NS])\s+(\d{1,3})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*([EW])\s*$/i;
-  const prefixPattern = /^\s*([NS])\s*(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s+([EW])\s*(\d{1,3})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*$/i;
+  const suffixPattern = /^\s*(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*([NS])(?:\s*,\s*|\s+)(\d{1,3})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*([EW])\s*$/i;
+  const prefixPattern = /^\s*([NS])\s*(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*(?:\s*,\s*|\s+)([EW])\s*(\d{1,3})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*$/i;
 
-  let match = text.match(suffixPattern);
+  const compactSuffixPattern =
+    /^\s*(\d{2})(\d{2}(?:\.\d+)?)\s*([NS])\s*,?\s*(\d{3})(\d{2}(?:\.\d+)?)\s*([EW])\s*$/i;
+
+  const compactPrefixPattern =
+    /^\s*([NS])\s*(\d{2})(\d{2}(?:\.\d+)?)\s*,?\s*([EW])\s*(\d{3})(\d{2}(?:\.\d+)?)\s*$/i;
+
+
+
+  let match = text.match(suffixPattern) || text.match(compactSuffixPattern);
   let latDeg;
   let latMin;
   let latHemi;
@@ -336,7 +424,7 @@ function parseDdm(text) {
     lonMin = Number(match[5]);
     lonHemi = match[6].toUpperCase();
   } else {
-    match = text.match(prefixPattern);
+    match = text.match(prefixPattern) || text.match(compactPrefixPattern);
     if (!match) return null;
     latHemi = match[1].toUpperCase();
     latDeg = Number(match[2]);
@@ -355,31 +443,67 @@ function parseDdm(text) {
 }
 
 function parseDms(text) {
-  const pattern = /^\s*(\d{1,2})[^\dNSEW]+(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)\s*([NS])\s+(\d{1,3})[^\dNSEW]+(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)\s*([EW])\s*$/i;
-  const match = text.match(pattern);
-  if (!match) return null;
+  const suffixPattern =
+    /^\s*(\d{1,2})[^\dNSEW]+(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*([NS])(?:\s*,\s*|\s+)(\d{1,3})[^\dNSEW]+(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*([EW])\s*$/i;
 
-  const latDeg = Number(match[1]);
-  const latMin = Number(match[2]);
-  const latSec = Number(match[3]);
-  const latHemi = match[4].toUpperCase();
-  const lonDeg = Number(match[5]);
-  const lonMin = Number(match[6]);
-  const lonSec = Number(match[7]);
-  const lonHemi = match[8].toUpperCase();
+  const prefixPattern =
+    /^\s*([NS])\s*(\d{1,2})[^\dNSEW]+(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*(?:\s*,\s*|\s+)([EW])\s*(\d{1,3})[^\dNSEW]+(\d{1,2})[^\dNSEW]+(\d{1,2}(?:\.\d+)?)[^\dNSEW]*\s*$/i;
+
+  let match = text.match(suffixPattern);
+  let latDeg;
+  let latMin;
+  let latSec;
+  let latHemi;
+  let lonDeg;
+  let lonMin;
+  let lonSec;
+  let lonHemi;
+
+  if (match) {
+    latDeg = Number(match[1]);
+    latMin = Number(match[2]);
+    latSec = Number(match[3]);
+    latHemi = match[4].toUpperCase();
+    lonDeg = Number(match[5]);
+    lonMin = Number(match[6]);
+    lonSec = Number(match[7]);
+    lonHemi = match[8].toUpperCase();
+  } else {
+    match = text.match(prefixPattern);
+    if (!match) return null;
+
+    latHemi = match[1].toUpperCase();
+    latDeg = Number(match[2]);
+    latMin = Number(match[3]);
+    latSec = Number(match[4]);
+    lonHemi = match[5].toUpperCase();
+    lonDeg = Number(match[6]);
+    lonMin = Number(match[7]);
+    lonSec = Number(match[8]);
+  }
 
   validateMinuteSecond(latMin, latSec);
   validateMinuteSecond(lonMin, lonSec);
+
   const latDd = dmsToDecimal(latDeg, latMin, latSec, latHemi);
   const lonDd = dmsToDecimal(lonDeg, lonMin, lonSec, lonHemi);
+
   validateRange(latDd, lonDd);
-  return { detectedFormat: "Degrees Minutes Seconds", latitudeDd: latDd, longitudeDd: lonDd };
+
+  return {
+    detectedFormat: "Degrees Minutes Seconds",
+    latitudeDd: latDd,
+    longitudeDd: lonDd,
+  };
 }
 
 function parseCompactAviation(text) {
   const cleaned = text.trim().toUpperCase();
-  const suffixPattern = /^\s*(\d{2})(\d{2})(\d{2}(?:\.\d+)?)\s*([NS])\s*(?:\/|\s)\s*(\d{3})(\d{2})(\d{2}(?:\.\d+)?)\s*([EW])\s*$/;
-  const prefixPattern = /^\s*([NS])\s*(\d{2})(\d{2})(\d{2}(?:\.\d+)?)\s+([EW])\s*(\d{3})(\d{2})(\d{2}(?:\.\d+)?)\s*$/;
+  const suffixPattern =
+    /^\s*(\d{2})(\d{2})(\d{2}(?:\.\d+)?)\s*([NS])\s*(?:\/|,)?\s*(\d{3})(\d{2})(\d{2}(?:\.\d+)?)\s*([EW])\s*$/;
+
+  const prefixPattern =
+    /^\s*([NS])\s*(\d{2})(\d{2})(\d{2}(?:\.\d+)?)\s*(?:\/|,)?\s*([EW])\s*(\d{3})(\d{2})(\d{2}(?:\.\d+)?)\s*$/;
 
   let match = cleaned.match(suffixPattern);
   let latDeg;
@@ -448,7 +572,7 @@ function parseMgrs(text) {
   return {
     detectedFormat: "MGRS",
     latitudeDd: latDd,
-    longitudeDd: lonDd 
+    longitudeDd: lonDd
   };
 }
 
@@ -712,6 +836,7 @@ function wireCoordinates() {
       setText("coordMgrs", formatted.mgrs);
       setStatus(status, STATUS_CONVERSION_SUCCESS);
     } catch (error) {
+      clearOutputs();
       setStatus(status, error.message || STATUS_INVALID_COORDINATE, true);
     }
   });
