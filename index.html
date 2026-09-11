@@ -1,154 +1,259 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#111827">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Flight Utility">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Flight Utility</title>
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="icons/icon-192.svg">
-    <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
-    <main class="app-shell">
-      <header class="app-header">
-        <div>
-          <p class="eyebrow">Flight Utility</p>
-          <h1>Quick cockpit math</h1>
-        </div>
-        <span id="installState" class="install-state">Offline ready</span>
-      </header>
 
-      <nav class="tabs" aria-label="Utility tabs">
-        <button class="tab-button active" type="button" data-tab="time">Time / Calculator</button>
-        <button class="tab-button" type="button" data-tab="fuel">Fuel</button>
-        <button class="tab-button" type="button" data-tab="coordinates">Coordinates</button>
-      </nav>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Flight Utility">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Flight Utility</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.svg">
+  <link rel="stylesheet" href="styles.css">
+</head>
 
-      <section id="coordinates" class="tab-panel" aria-labelledby="coordinates-tab">
-        <div class="input-stack">
-          <label for="coordInput">Enter / Paste coordinate</label>
-          <div class="input-action-row">
-            <input id="coordInput" type="text" inputmode="text" autocomplete="off" >
-            <button id="coordParse" class="primary-button" type="button">Parse</button>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Flight Utility</p>
+        <h1>Quick cockpit math</h1>
+      </div>
+      <span id="installState" class="install-state">Offline ready</span>
+    </header>
+
+    <nav class="tabs" aria-label="Utility tabs">
+      <button class="tab-button active" type="button" data-tab="time">Time / Calculator</button>
+      <button class="tab-button" type="button" data-tab="fuel">Fuel</button>
+      <button class="tab-button" type="button" data-tab="coordinates">Coordinates</button>
+    </nav>
+
+    <section id="coordinates" class="tab-panel" aria-labelledby="coordinates-tab">
+      <div class="input-stack">
+        <label for="coordInput">Enter / Paste coordinate</label>
+        <input id="coordInput" type="text" inputmode="none" autocomplete="off" autocapitalize="characters"
+          spellcheck="false">
+
+        <div id="coordKeypad" class="coordinate-keypad" aria-label="Coordinate entry keypad">
+          <button type="button" data-key="N">N</button>
+          <button type="button" data-key="S">S</button>
+          <button type="button" data-key="E">E</button>
+          <button type="button" data-key="W">W</button>
+
+          <button type="button" data-key="1">1</button>
+          <button type="button" data-key="2">2</button>
+          <button type="button" data-key="3">3</button>
+          <button type="button" data-key="°">°</button>
+
+          <button type="button" data-key="4">4</button>
+          <button type="button" data-key="5">5</button>
+          <button type="button" data-key="6">6</button>
+          <button type="button" data-key="′">′</button>
+
+          <button type="button" data-key="7">7</button>
+          <button type="button" data-key="8">8</button>
+          <button type="button" data-key="9">9</button>
+          <button type="button" data-key="″">″</button>
+
+          <button type="button" data-key="0">0</button>
+          <button type="button" data-key=".">.</button>
+          <button type="button" data-key=":">:</button>
+          <button type="button" data-key="−">−</button>
+
+          <button type="button" data-action="space">SPACE</button>
+          <button type="button" data-action="letters">ABC</button>
+          <button type="button" data-action="clear">CLEAR</button>
+          <button type="button" data-action="backspace" aria-label="Backspace">⌫</button>
+
+          <button class="keypad-wide" type="button" data-action="paste">PASTE</button>
+          <button class="keypad-wide primary-button" type="button" data-action="parse">PARSE</button>
+          <div class="mgrs-keypad" aria-label="MGRS alphanumeric keypad">
+            <button type="button" data-key="A">A</button>
+            <button type="button" data-key="B">B</button>
+            <button type="button" data-key="C">C</button>
+            <button type="button" data-key="D">D</button>
+            <button type="button" data-key="E">E</button>
+            <button type="button" data-key="F">F</button>
+
+            <button type="button" data-key="G">G</button>
+            <button type="button" data-key="H">H</button>
+            <button type="button" data-key="J">J</button>
+            <button type="button" data-key="K">K</button>
+            <button type="button" data-key="L">L</button>
+            <button type="button" data-key="M">M</button>
+
+            <button type="button" data-key="N">N</button>
+            <button type="button" data-key="P">P</button>
+            <button type="button" data-key="Q">Q</button>
+            <button type="button" data-key="R">R</button>
+            <button type="button" data-key="S">S</button>
+            <button type="button" data-key="T">T</button>
+
+            <button type="button" data-key="U">U</button>
+            <button type="button" data-key="V">V</button>
+            <button type="button" data-key="W">W</button>
+            <button type="button" data-key="X">X</button>
+            <button type="button" data-key="Y">Y</button>
+            <button type="button" data-key="Z">Z</button>
+
+            <button type="button" data-key="1">1</button>
+            <button type="button" data-key="2">2</button>
+            <button type="button" data-key="3">3</button>
+            <button type="button" data-key="4">4</button>
+            <button type="button" data-key="5">5</button>
+            <button type="button" data-key="6">6</button>
+
+            <button type="button" data-key="7">7</button>
+            <button type="button" data-key="8">8</button>
+            <button type="button" data-key="9">9</button>
+            <button type="button" data-key="0">0</button>
+            <button type="button" data-action="space">SPACE</button>
+            <button type="button" data-action="backspace" aria-label="Backspace">⌫</button>
+
+            <button type="button" data-action="numbers">123</button>
+            <button type="button" data-action="clear">CLEAR</button>
+            <button class="mgrs-wide" type="button" data-action="paste">PASTE</button>
+            <button class="mgrs-wide primary-button" type="button" data-action="parse">PARSE</button>
           </div>
-          <div class="button-row">
-            <button id="coordPaste" type="button">Paste</button>
-            <button id="coordClear" type="button">Clear</button>
-          </div>
         </div>
+      </div>
 
-        <div class="result-list" id="coordResults">
-          <article class="result-card">
-            <span>Detected Format</span>
-            <strong id="coordDetected">-</strong>
-          </article>
-          <article class="result-card">
-            <span>Status</span>
-            <strong id="coordStatus">Ready</strong>
-          </article>
-          <article class="result-card copyable">
-            <span>Decimal Degrees</span>
-            <button type="button" data-copy-target="coordDecimal" aria-label="Copy decimal degrees">
-              <strong id="coordDecimal">-</strong>
-            </button>
-          </article>
-          <article class="result-card copyable">
-            <span>Degrees Decimal Minutes</span>
-            <button type="button" data-copy-target="coordDdm" aria-label="Copy degrees decimal minutes">
-              <strong id="coordDdm">-</strong>
-            </button>
-          </article>
-          <article class="result-card copyable">
-            <span>Degrees Minutes Seconds</span>
-            <button type="button" data-copy-target="coordDms" aria-label="Copy degrees minutes seconds">
-              <strong id="coordDms">-</strong>
-            </button>
-          </article>
-          <article class="result-card copyable">
-            <span>Compact Aviation DMS</span>
-            <button type="button" data-copy-target="coordCompact" aria-label="Copy compact aviation DMS">
-              <strong id="coordCompact">-</strong>
-            </button>
-          </article>
-          <article class="result-card copyable">
-            <span>ForeFlight Format</span>
-            <button type="button" data-copy-target="coordForeflight" aria-label="Copy ForeFlight format">
-              <strong id="coordForeflight">-</strong>
-            </button>
-          </article>
-          <article class="result-card muted">
-            <span>UTM</span>
-            <strong id="coordUtm">Browser build: pending geodesy support</strong>
-          </article>
-          <article class="result-card muted">
-            <span>MGRS</span>
-            <strong id="coordMgrs">Browser build: pending geodesy support</strong>
-          </article>
-        </div>
-      </section>
+      <div class="result-list" id="coordResults">
+        <article class="result-card">
+          <span>Detected Format</span>
+          <strong id="coordDetected">-</strong>
+        </article>
+        <article class="result-card">
+          <span>Status</span>
+          <strong id="coordStatus">Ready</strong>
+        </article>
+        <article class="result-card copyable">
+          <span>Decimal Degrees</span>
+          <strong id="coordDecimal">-</strong>
+          <button class="copy-button" type="button" data-copy-target="coordDecimal" aria-label="Copy decimal degrees">
+            COPY
+          </button>
+        </article>
 
-      <section id="fuel" class="tab-panel" aria-labelledby="fuel-tab">
-        <div class="input-stack">
-          <label for="fuelType">Fuel type</label>
-          <select id="fuelType">
-            <option>Jet A</option>
-            <option>Avgas</option>
-            <option>Regular Gasoline</option>
-            <option>Diesel</option>
-          </select>
-        </div>
+        <article class="result-card copyable">
+          <span>Degrees Decimal Minutes</span>
+          <strong id="coordDdm">-</strong>
+          <button class="copy-button" type="button" data-copy-target="coordDdm"
+            aria-label="Copy degrees decimal minutes">
+            COPY
+          </button>
+        </article>
 
-        <div class="fuel-grid" id="fuelGrid">
-          <label>Pounds<input id="fuelPounds" data-unit="Pounds" type="number" inputmode="decimal" step="any"></label>
-          <label>Kilograms<input id="fuelKilograms" data-unit="Kilograms" type="number" inputmode="decimal" step="any"></label>
-          <label>Litres<input id="fuelLitres" data-unit="Litres" type="number" inputmode="decimal" step="any"></label>
-          <label>US Gallons<input id="fuelUsGallons" data-unit="US Gallons" type="number" inputmode="decimal" step="any"></label>
-          <label>Imperial Gallons<input id="fuelImpGallons" data-unit="Imperial Gallons" type="number" inputmode="decimal" step="any"></label>
-        </div>
+        <article class="result-card copyable">
+          <span>Degrees Minutes Seconds</span>
+          <strong id="coordDms">-</strong>
+          <button class="copy-button" type="button" data-copy-target="coordDms"
+            aria-label="Copy degrees minutes seconds">
+            COPY
+          </button>
+        </article>
 
-        <div class="button-row">
-          <button id="fuelCalculate" class="primary-button" type="button">Calculate</button>
-          <button id="fuelClear" type="button">Clear</button>
-        </div>
-        <p id="fuelStatus" class="status-line">Ready</p>
-      </section>
+        <article class="result-card copyable">
+          <span>Compact Aviation DMS</span>
+          <strong id="coordCompact">-</strong>
+          <button class="copy-button" type="button" data-copy-target="coordCompact"
+            aria-label="Copy compact aviation DMS">
+            COPY
+          </button>
+        </article>
 
-      <section id="time" class="tab-panel active" aria-labelledby="time-tab">
-        <div class="time-display" aria-live="polite">
-          <span id="timeExpression">0</span>
-          <strong id="timeResult">0</strong>
-        </div>
-        <div class="calculator-grid" id="timeButtons">
-          <button type="button">7</button>
-          <button type="button">8</button>
-          <button type="button">9</button>
-          <button class="operator" type="button">÷</button>
-          <button type="button">4</button>
-          <button type="button">5</button>
-          <button type="button">6</button>
-          <button class="operator" type="button">×</button>
-          <button type="button">1</button>
-          <button type="button">2</button>
-          <button type="button">3</button>
-          <button class="operator" type="button">−</button>
-          <button type="button">0</button>
-          <button type="button">.</button>
-          <button type="button">:</button>
-          <button class="operator" type="button">+</button>
-          <button class="utility" type="button">C</button>
-          <button class="utility" type="button">←</button>
-          <button class="utility" type="button">: to .</button>
-          <button class="equals" type="button">=</button>
-        </div>
-        <p id="timeStatus" class="status-line">Ready</p>
-      </section>
-    </main>
+        <article class="result-card copyable">
+          <span>ForeFlight Format</span>
+          <strong id="coordForeflight">-</strong>
+          <button class="copy-button" type="button" data-copy-target="coordForeflight"
+            aria-label="Copy ForeFlight format">
+            COPY
+          </button>
+        </article>
 
-    <script src="lib/mgrs.js"></script>
-    <script src="app.js"></script>
-  </body>
+        <article class="result-card copyable">
+          <span>UTM</span>
+          <strong id="coordUtm">Browser build: pending geodesy support</strong>
+          <button class="copy-button" type="button" data-copy-target="coordUtm" aria-label="Copy UTM coordinate">
+            COPY
+          </button>
+        </article>
+
+        <article class="result-card copyable">
+          <span>MGRS</span>
+          <strong id="coordMgrs">Browser build: pending geodesy support</strong>
+          <button class="copy-button" type="button" data-copy-target="coordMgrs" aria-label="Copy MGRS coordinate">
+            COPY
+          </button>
+        </article>
+      </div>
+    </section>
+
+    <section id="fuel" class="tab-panel" aria-labelledby="fuel-tab">
+      <div class="input-stack">
+        <label for="fuelType">Fuel type</label>
+        <select id="fuelType">
+          <option>Jet A</option>
+          <option>Avgas</option>
+          <option>Regular Gasoline</option>
+          <option>Diesel</option>
+        </select>
+      </div>
+
+      <div class="fuel-grid" id="fuelGrid">
+        <label>Pounds<input id="fuelPounds" data-unit="Pounds" type="number" inputmode="decimal" step="any"></label>
+        <label>Kilograms<input id="fuelKilograms" data-unit="Kilograms" type="number" inputmode="decimal"
+            step="any"></label>
+        <label>Litres<input id="fuelLitres" data-unit="Litres" type="number" inputmode="decimal" step="any"></label>
+        <label>US Gallons<input id="fuelUsGallons" data-unit="US Gallons" type="number" inputmode="decimal"
+            step="any"></label>
+        <label>Imperial Gallons<input id="fuelImpGallons" data-unit="Imperial Gallons" type="number" inputmode="decimal"
+            step="any"></label>
+      </div>
+
+      <div class="button-row">
+        <button id="fuelCalculate" class="primary-button" type="button">Calculate</button>
+        <button id="fuelClear" type="button">Clear</button>
+      </div>
+      <p id="fuelStatus" class="status-line">Ready</p>
+    </section>
+
+    <section id="time" class="tab-panel active" aria-labelledby="time-tab">
+      <div class="time-display" aria-live="polite">
+        <span id="timeExpression">0</span>
+        <strong id="timeResult">0</strong>
+      </div>
+      <div class="calculator-grid" id="timeButtons">
+        <button type="button">7</button>
+        <button type="button">8</button>
+        <button type="button">9</button>
+        <button class="operator" type="button">÷</button>
+        <button type="button">4</button>
+        <button type="button">5</button>
+        <button type="button">6</button>
+        <button class="operator" type="button">×</button>
+        <button type="button">1</button>
+        <button type="button">2</button>
+        <button type="button">3</button>
+        <button class="operator" type="button">−</button>
+        <button type="button">0</button>
+        <button type="button">.</button>
+        <button type="button">:</button>
+        <button class="operator" type="button">+</button>
+        <button class="utility" type="button">C</button>
+        <button class="utility" type="button" aria-label="Backspace">⌫</button>
+        <button class="utility" type="button">: to .</button>
+        <button class="equals" type="button">=</button>
+      </div>
+      <p id="timeStatus" class="status-line">Ready</p>
+    </section>
+  </main>
+
+  <script src="lib/mgrs.js"></script>
+  <script src="app.js"></script>
+</body>
+
 </html>

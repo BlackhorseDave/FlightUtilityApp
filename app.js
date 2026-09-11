@@ -210,18 +210,18 @@ function utmToLatLon(zoneNumber, zoneLetter, easting, northing) {
   const latRad =
     fp -
     ((n1 * tanFp) / r1) *
-      (d ** 2 / 2 -
-        ((5 + 3 * t1 + 10 * c1 - 4 * c1 ** 2 - 9 * eccPrimeSquared) *
-          d ** 4) /
-          24 +
-        ((61 +
-          90 * t1 +
-          298 * c1 +
-          45 * t1 ** 2 -
-          252 * eccPrimeSquared -
-          3 * c1 ** 2) *
-          d ** 6) /
-          720);
+    (d ** 2 / 2 -
+      ((5 + 3 * t1 + 10 * c1 - 4 * c1 ** 2 - 9 * eccPrimeSquared) *
+        d ** 4) /
+      24 +
+      ((61 +
+        90 * t1 +
+        298 * c1 +
+        45 * t1 ** 2 -
+        252 * eccPrimeSquared -
+        3 * c1 ** 2) *
+        d ** 6) /
+      720);
 
   const lonRad =
     (d -
@@ -233,7 +233,7 @@ function utmToLatLon(zoneNumber, zoneLetter, easting, northing) {
         8 * eccPrimeSquared +
         24 * t1 ** 2) *
         d ** 5) /
-        120) /
+      120) /
     cosFp;
 
   const latDd = latRad * 180 / Math.PI;
@@ -606,7 +606,9 @@ function parseUtm(text) {
 }
 
 function parseCoordinateText(text) {
-  const cleaned = text.trim();
+  const cleaned = text
+    .trim()
+    .replace(/([NS])(?=\d)/gi, "$1 ");
   if (!cleaned) fail(STATUS_INVALID_COORDINATE);
 
   let validationError = null;
@@ -813,19 +815,66 @@ function wireTabs() {
 function wireCoordinates() {
   const input = $("#coordInput");
   const status = $("#coordStatus");
+  const keypad = $("#coordKeypad");
 
   function clearOutputs() {
-    for (const id of ["coordDetected", "coordDecimal", "coordDdm", "coordDms", "coordCompact", "coordForeflight"]) {
+    for (const id of [
+      "coordDetected",
+      "coordDecimal",
+      "coordDdm",
+      "coordDms",
+      "coordCompact",
+      "coordForeflight"
+    ]) {
       setText(id, "-");
     }
+
     setText("coordUtm", STATUS_BROWSER_GEODESY_PENDING);
     setText("coordMgrs", STATUS_BROWSER_GEODESY_PENDING);
   }
 
-  $("#coordParse").addEventListener("click", () => {
+  function focusInput() {
+    input.focus({ preventScroll: true });
+  }
+
+  function insertText(text) {
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? start;
+
+    input.setRangeText(text, start, end, "end");
+    focusInput();
+    setStatus(status, STATUS_READY);
+  }
+
+  function backspaceInput() {
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? start;
+
+    if (start !== end) {
+      input.setRangeText("", start, end, "end");
+    } else if (start > 0) {
+      input.setRangeText("", start - 1, start, "end");
+    }
+
+    focusInput();
+    setStatus(status, STATUS_READY);
+  }
+
+  function clearInput() {
+    input.value = "";
+    clearOutputs();
+    setStatus(status, STATUS_READY);
+    focusInput();
+  }
+
+  function parseInput() {
     try {
       const parsed = parseCoordinateText(input.value);
-      const formatted = formatCoordinateOutputs(parsed.latitudeDd, parsed.longitudeDd);
+      const formatted = formatCoordinateOutputs(
+        parsed.latitudeDd,
+        parsed.longitudeDd
+      );
+
       setText("coordDetected", parsed.detectedFormat);
       setText("coordDecimal", formatted.decimalDegrees);
       setText("coordDdm", formatted.degreesDecimalMinutes);
@@ -837,29 +886,68 @@ function wireCoordinates() {
       setStatus(status, STATUS_CONVERSION_SUCCESS);
     } catch (error) {
       clearOutputs();
-      setStatus(status, error.message || STATUS_INVALID_COORDINATE, true);
+      setStatus(
+        status,
+        error.message || STATUS_INVALID_COORDINATE,
+        true
+      );
+    }
+  }
+
+  async function pasteInput() {
+    try {
+      input.value = await navigator.clipboard.readText();
+      parseInput();
+    } catch {
+      setStatus(status, "Paste is blocked by this browser", true);
+    }
+  }
+
+  keypad.addEventListener("click", async (event) => {
+    const button = event.target.closest("button");
+    if (!button || !keypad.contains(button)) return;
+
+    if (button.dataset.key !== undefined) {
+      const key = button.dataset.key === "−" ? "-" : button.dataset.key;
+      insertText(key);
+      return;
+    }
+
+    const action = button.dataset.action;
+
+    if (action === "space") {
+      insertText(" ");
+    } else if (action === "backspace") {
+      backspaceInput();
+    } else if (action === "clear") {
+      clearInput();
+    } else if (action === "paste") {
+      await pasteInput();
+    } else if (action === "parse") {
+      parseInput();
+    } else if (action === "letters") {
+      keypad.classList.add("letters-active");
+      focusInput();
+    } else if (action === "numbers") {
+      keypad.classList.remove("letters-active");
+      focusInput();
     }
   });
 
-  $("#coordClear").addEventListener("click", () => {
-    input.value = "";
-    clearOutputs();
-    setStatus(status, STATUS_READY);
-  });
-
-  $("#coordPaste").addEventListener("click", async () => {
-    try {
-      input.value = await navigator.clipboard.readText();
-      $("#coordParse").click();
-    } catch {
-      setStatus(status, "Paste is blocked by this browser", true);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      parseInput();
     }
   });
 
   $$("#coordResults [data-copy-target]").forEach((button) => {
     button.addEventListener("click", async () => {
-      const value = document.getElementById(button.dataset.copyTarget).textContent;
+      const value = document.getElementById(
+        button.dataset.copyTarget
+      ).textContent;
+
       if (!value || value === "-") return;
+
       try {
         await navigator.clipboard.writeText(value);
         setStatus(status, "Copied");
@@ -998,7 +1086,7 @@ function wireTime() {
     if (/^[0-9.:]$/.test(label)) appendValue(label);
     else if (["+", "−", "×", "÷"].includes(label)) appendOperator(label);
     else if (label === "C") clear();
-    else if (label === "←") backspace();
+    else if (label === "⌫") backspace();
     else if (label === ": to .") convertValue();
     else if (label === "=") evaluate();
   });

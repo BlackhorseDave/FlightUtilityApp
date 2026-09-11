@@ -171,6 +171,64 @@ button:focus-visible {
   padding: 0 18px;
 }
 
+.coordinate-keypad {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.coordinate-keypad button {
+  min-width: 0;
+  min-height: 58px;
+  padding: 6px;
+  font-size: 1.2rem;
+}
+
+.coordinate-keypad button[data-action="space"],
+.coordinate-keypad button[data-action="letters"],
+.coordinate-keypad button[data-action="clear"],
+.coordinate-keypad button[data-action="paste"],
+.coordinate-keypad button[data-action="parse"] {
+  font-size: 0.95rem;
+}
+
+.coordinate-keypad button[data-action="backspace"] {
+  font-size: 1.5rem;
+}
+
+.coordinate-keypad button[data-key="."],
+.coordinate-keypad button[data-key=":"],
+.coordinate-keypad button[data-key="°"],
+.coordinate-keypad button[data-key="′"],
+.coordinate-keypad button[data-key="″"] {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.coordinate-keypad .keypad-wide {
+  grid-column: span 2;
+}
+
+.mgrs-keypad {
+  display: none;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.coordinate-keypad.letters-active>button {
+  display: none;
+}
+
+.coordinate-keypad.letters-active .mgrs-keypad {
+  display: grid;
+}
+
+.mgrs-keypad .mgrs-wide {
+  grid-column: span 2;
+}
+
 .result-list {
   display: grid;
   gap: 8px;
@@ -200,12 +258,25 @@ button:focus-visible {
   line-height: 1.35;
 }
 
-.result-card.copyable button {
-  min-height: auto;
-  padding: 0;
-  border-radius: 4px;
-  background: transparent;
-  text-align: left;
+.result-card.copyable {
+  grid-template-columns: minmax(118px, 0.38fr) minmax(0, 1fr) auto;
+  align-items: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.result-card.copyable .copy-button {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: #dbeafe;
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+.result-card.copyable .copy-button:active {
+  background: #bfdbfe;
 }
 
 .result-card.muted strong {
@@ -311,4 +382,11 @@ button:focus-visible {
   .input-action-row .primary-button {
     width: 100%;
   }
+.result-card.copyable {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.result-card.copyable > span {
+  grid-column: 1 / -1;
+}
 }
