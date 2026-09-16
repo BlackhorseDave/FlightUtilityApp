@@ -672,11 +672,10 @@ function parseDurationToken(token) {
   const cleaned = token.trim();
   if (!cleaned) fail(STATUS_INVALID_TIME);
   if (cleaned.includes(":")) {
-    const match = cleaned.match(/^(\d+):(\d{2})$/);
+    const match = cleaned.match(/^(\d*):(\d+)$/);
     if (!match) fail(STATUS_INVALID_TIME);
-    const hours = Number(match[1]);
+    const hours = Number(match[1] || 0);
     const minutes = Number(match[2]);
-    if (minutes < 0 || minutes > 59) fail(STATUS_INVALID_TIME);
     return { value: hours + minutes / 60, wasHhmm: true };
   }
   if (!/^(?:\d+(?:\.\d+)?|\.\d+)$/.test(cleaned)) fail(STATUS_INVALID_TIME);
@@ -708,7 +707,7 @@ function evaluateDurationExpression(expression) {
   const cleaned = normalizeExpression(expression).replace(/\s/g, "");
   if (!cleaned) fail(STATUS_INVALID_TIME);
 
-  const tokenPattern = /\d+:\d{2}|\d+(?:\.\d+)?|\.\d+|[+\-*/]/g;
+  const tokenPattern = /\d*:\d+|\d+(?:\.\d+)?|\.\d+|[+\-*/]/g;
   const tokens = cleaned.match(tokenPattern);
   if (!tokens || tokens.join("") !== cleaned) fail(STATUS_INVALID_TIME);
 
