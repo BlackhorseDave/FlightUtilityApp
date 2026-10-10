@@ -642,7 +642,6 @@ function formatCoordinateOutputs(latDd, lonDd) {
     degreesDecimalMinutes: `${padInt(latDdm.degrees, 2)}°${fixedPad(latDdm.minutes, 6, 3)}'${latHemi}\n${padInt(lonDdm.degrees, 3)}°${fixedPad(lonDdm.minutes, 6, 3)}'${lonHemi}`,
     degreesMinutesSeconds: `${padInt(latDms.degrees, 2)}°${padInt(latDms.minutes, 2)}'${fixedPad(latDms.seconds, 5, 2)}"${latHemi}\n${padInt(lonDms.degrees, 3)}°${padInt(lonDms.minutes, 2)}'${fixedPad(lonDms.seconds, 5, 2)}"${lonHemi}`,
     compactAviationDms: `${padInt(latDms.degrees, 2)}${padInt(latDms.minutes, 2)}${fixedPad(latDms.seconds, 5, 2)}${latHemi} ${padInt(lonDms.degrees, 3)}${padInt(lonDms.minutes, 2)}${fixedPad(lonDms.seconds, 5, 2)}${lonHemi}`,
-    foreflightFormat: `${padInt(latDms.degrees, 2)}${padInt(latDms.minutes, 2)}${fixedPad(latDms.seconds, 5, 2)}${latHemi}/${padInt(lonDms.degrees, 3)}${padInt(lonDms.minutes, 2)}${fixedPad(lonDms.seconds, 5, 2)}${lonHemi}`,
     utm: utmMgrs.utm,
     mgrs: utmMgrs.mgrs,
   };
@@ -822,8 +821,7 @@ function wireCoordinates() {
       "coordDecimal",
       "coordDdm",
       "coordDms",
-      "coordCompact",
-      "coordForeflight"
+      "coordCompact",      
     ]) {
       setText(id, "-");
     }
@@ -878,8 +876,7 @@ function wireCoordinates() {
       setText("coordDecimal", formatted.decimalDegrees);
       setText("coordDdm", formatted.degreesDecimalMinutes);
       setText("coordDms", formatted.degreesMinutesSeconds);
-      setText("coordCompact", formatted.compactAviationDms);
-      setText("coordForeflight", formatted.foreflightFormat);
+      setText("coordCompact", formatted.compactAviationDms);      
       setText("coordUtm", formatted.utm);
       setText("coordMgrs", formatted.mgrs);
       setStatus(status, STATUS_CONVERSION_SUCCESS);
