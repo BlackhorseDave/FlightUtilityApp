@@ -821,7 +821,7 @@ function wireCoordinates() {
       "coordDecimal",
       "coordDdm",
       "coordDms",
-      "coordCompact",      
+      "coordCompact",
     ]) {
       setText(id, "-");
     }
@@ -876,7 +876,7 @@ function wireCoordinates() {
       setText("coordDecimal", formatted.decimalDegrees);
       setText("coordDdm", formatted.degreesDecimalMinutes);
       setText("coordDms", formatted.degreesMinutesSeconds);
-      setText("coordCompact", formatted.compactAviationDms);      
+      setText("coordCompact", formatted.compactAviationDms);
       setText("coordUtm", formatted.utm);
       setText("coordMgrs", formatted.mgrs);
       setStatus(status, STATUS_CONVERSION_SUCCESS);
@@ -958,36 +958,77 @@ function wireFuel() {
   const status = $("#fuelStatus");
   const inputs = $$("#fuelGrid input");
   const byUnit = Object.fromEntries(inputs.map((input) => [input.dataset.unit, input]));
+  let activeInput = null;
+  let activeValue = null;
 
-  $("#fuelCalculate").addEventListener("click", () => {
-    const nonEmpty = inputs
-      .map((input) => [input.dataset.unit, input.value.trim()])
-      .filter(([, value]) => value !== "");
+  inputs.forEach((input) => {
+    input.addEventListener("input", () => {
+      activeInput = input;
+      activeValue = input.value.trim() === "" ? null : Number(input.value);
 
-    if (nonEmpty.length !== 1) {
+      inputs.forEach((otherInput) => {
+        if (otherInput !== input) {
+          otherInput.value = "";
+        }
+      });
+
+      if (activeValue === null) {
+        setStatus(status, STATUS_READY);
+      } else {
+        calculateFuel();
+      }
+    });
+  });
+
+  function calculateFuel() {
+    if (activeInput === null || activeValue === null) {
       setStatus(status, STATUS_ENTER_ONE_FUEL, true);
       return;
     }
 
-    const [unit, rawValue] = nonEmpty[0];
-    const value = Number(rawValue);
+    const unit = activeInput.dataset.unit;
+    const value = activeValue;
     if (!Number.isFinite(value)) {
       setStatus(status, STATUS_INVALID_FUEL_NUMERIC, true);
       return;
     }
 
+    if (value < 0) {
+      setStatus(status, "Fuel quantity cannot be negative", true);
+      return;
+    }
+
+    activeInput = byUnit[unit];
+    activeValue = value;
+
     const converted = convertFuelValues(unit, value, $("#fuelType").value);
     for (const [outputUnit, resultValue] of Object.entries(converted)) {
-      byUnit[outputUnit].value = resultValue.toFixed(3);
+      if (byUnit[outputUnit] !== activeInput) {
+        byUnit[outputUnit].value = resultValue.toFixed(1);
+      }
     }
     setStatus(status, STATUS_FUEL_SUCCESS);
+  }
+
+  $("#fuelCalculate").addEventListener("click", calculateFuel);
+
+  $("#fuelType").addEventListener("change", () => {
+    if (activeInput !== null && activeValue !== null) {
+      calculateFuel();
+    }
   });
 
   $("#fuelClear").addEventListener("click", () => {
     inputs.forEach((input) => {
       input.value = "";
     });
-    setStatus(status, STATUS_READY);
+    if (activeValue === null) {
+      activeInput = null;
+      activeValue = null;
+      setStatus(status, STATUS_READY);
+    } else {
+      calculateFuel();
+    }
   });
 }
 

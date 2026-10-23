@@ -145,3 +145,21 @@ Proceed one step at a time; wait for Dave's confirmation before moving to anothe
 Next: Dave reviews checklist and confirms incorporation status.
 Recommended Git checkpoints: current v21 baseline retained; acceptance-tested feature freeze; first working native build; store-submitted release; approved Version 1.0 release tag. Do not label untested builds as final.
 
+2026-10-22 — Release testing, published PWA with v21 cache
+
+Time tests T01–T16: expected calculations, overflow minutes, conversions, error recovery, negative durations and editing passed. Division by zero is rejected, but incorrectly reports “Invalid time format.”
+
+Fuel tests F01–F14: basic conversions passed for all four fuel types and all five starting units. Confirmed defects: changing fuel type leaves stale results and success status; recalculation rejects its own populated outputs; editing quantities, including arrow adjustments, leaves stale results; negative quantities are accepted. Requested behaviour: remember the active input, automatically recalculate after quantity or fuel-type changes, and display one decimal place while retaining internal precision.
+
+Coordinate tests C01–C41: supported angular formats, rounding carry, poles and coverage-boundary behaviour checked. Confirmed defects: editing leaves old results available to copy; short UTM northings are rejected unless padded; invalid zone/band combinations and band/northing mismatches are accepted; mathematical minus “−” and space-separated signed decimal pairs are rejected; Clear and errors restore development wording. Error-message consistency and MGRS coverage wording need cleanup.
+
+Independent coordinate accuracy verification, offline readiness checks, README and limitations documentation, MGRS license review, fixes and regression testing remain outstanding. No application code changes or new Git checkpoint made during these tests.
+
+2026-10-23 — Fuel input fixes and local verification
+
+Updated wireFuel() to remember the active input and its unrounded value, automatically recalculate after quantity or fuel-type changes, display converted outputs to one decimal place, reject negative quantities, and reset remembered input on Clear. The field being edited retains the user’s entered text.
+
+node --check app.js passed. Local Chrome tests at http://127.0.0.1:8001/ passed R01–R09: automatic calculation, arrow adjustments, switching input units, negative rejection, zero recovery, Clear/reset, repeated Calculate, deleting input, and preserving volume or mass when changing fuel type.
+
+Phone testing and broader release checks remain outstanding. Published PWA and generated www assets have not been updated.
+
