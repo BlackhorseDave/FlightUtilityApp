@@ -188,3 +188,11 @@ Updated parseUtm() to accept northings containing 1–8 digits, allowing zero an
 node --check app.js passed. Local browser tests passed: northing 0 accepted; northing 123 accepted; padded 0000123 produces the same result; northing 10000001 rejected with cleared outputs.
 
 UTM zone/band combinations and band/northing consistency remain unresolved. These tests verify input handling, not independent coordinate accuracy. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — Mathematical minus in coordinate input
+
+Updated parseCoordinateText() to normalize mathematical minus “−” to standard minus "-" before parsing.
+
+node --check app.js passed. Local browser tests passed for mathematical minus on longitude, mathematical minus on both coordinates, rejection of latitude −91, and ordinary-minus input. Decimal pairs were tested with a comma separator; a comma was inserted using the physical keyboard where needed.
+
+Space-separated decimal pairs remain unresolved. Published PWA and generated www assets remain unchanged.

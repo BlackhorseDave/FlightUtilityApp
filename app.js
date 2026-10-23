@@ -608,6 +608,7 @@ function parseUtm(text) {
 function parseCoordinateText(text) {
   const cleaned = text
     .trim()
+    .replaceAll("−", "-")
     .replace(/([NS])(?=\d)/gi, "$1 ");
   if (!cleaned) fail(STATUS_INVALID_COORDINATE);
 
