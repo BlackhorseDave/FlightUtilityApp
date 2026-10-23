@@ -335,8 +335,7 @@ function fixedPad(value, width, decimals) {
 
 function parseDecimalDegrees(text) {
   const signedPattern =
-    /^\s*([+-]?\d+(?:\.\d+)?)\s*,\s*([+-]?\d+(?:\.\d+)?)\s*$/i;
-
+    /^\s*([+-]?\d+(?:\.\d+)?)(?:\s*,\s*|\s+)([+-]?\d+(?:\.\d+)?)\s*$/i;
 
   const suffixPattern =
     /^\s*(\d{1,2}(?:\.\d+)?)\s*([NS])(?:\s*,\s*|\s+)(\d{1,3}(?:\.\d+)?)\s*([EW])\s*$/i;

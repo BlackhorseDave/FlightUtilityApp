@@ -196,3 +196,11 @@ Updated parseCoordinateText() to normalize mathematical minus “−” to stand
 node --check app.js passed. Local browser tests passed for mathematical minus on longitude, mathematical minus on both coordinates, rejection of latitude −91, and ordinary-minus input. Decimal pairs were tested with a comma separator; a comma was inserted using the physical keyboard where needed.
 
 Space-separated decimal pairs remain unresolved. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — Space-separated decimal coordinate input
+
+Updated parseDecimalDegrees() to accept either a comma or whitespace between the two decimal coordinates.
+
+node --check app.js passed. Local browser tests passed: space-separated coordinates; space-separated coordinates with mathematical minus signs; rejection of an extra third number; existing comma-separated input; rejection of latitude 91.
+
+UTM zone/band validation and other release checks remain outstanding. Published PWA and generated www assets remain unchanged.
