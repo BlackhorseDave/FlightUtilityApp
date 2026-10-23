@@ -1028,13 +1028,9 @@ function wireFuel() {
     inputs.forEach((input) => {
       input.value = "";
     });
-    if (activeValue === null) {
-      activeInput = null;
-      activeValue = null;
-      setStatus(status, STATUS_READY);
-    } else {
-      calculateFuel();
-    }
+    activeInput = null;
+    activeValue = null;
+    setStatus(status, STATUS_READY);
   });
 }
 

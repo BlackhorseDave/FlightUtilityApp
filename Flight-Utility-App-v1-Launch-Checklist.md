@@ -172,3 +172,11 @@ node --check app.js passed. Local browser tests at http://127.0.0.1:8001/ passed
 Changes reviewed in GitHub Desktop and confirmed confined to wireCoordinates(). Phone testing, published PWA updates, and generated www assets remain outstanding.
 
 Follow-up: the pushed fuel Clear handler appears inconsistent with the earlier reset requirement; inspect and retest before release. Other outstanding release work remains unfinished.
+
+2026-10-23 — Fuel Clear correction
+
+Confirmed that Clear emptied the active field but repopulated other fields using the remembered quantity. Corrected the fuelClear handler to empty all five fields, reset activeInput and activeValue to null, and set status to Ready.
+
+node --check app.js passed. Local browser retests passed: Clear leaves all fields empty; changing fuel type after Clear leaves them empty; Calculate after Clear reports "Enter exactly one fuel value"; entering a fresh quantity resumes automatic conversion.
+
+This resolves the fuel Clear follow-up recorded above. Published PWA and generated www assets remain unchanged. Other release work remains outstanding.
