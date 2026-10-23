@@ -180,3 +180,11 @@ Confirmed that Clear emptied the active field but repopulated other fields using
 node --check app.js passed. Local browser retests passed: Clear leaves all fields empty; changing fuel type after Clear leaves them empty; Calculate after Clear reports "Enter exactly one fuel value"; entering a fresh quantity resumes automatic conversion.
 
 This resolves the fuel Clear follow-up recorded above. Published PWA and generated www assets remain unchanged. Other release work remains outstanding.
+
+2026-10-23 — Short UTM northing input fix
+
+Updated parseUtm() to accept northings containing 1–8 digits, allowing zero and short values without leading-zero padding. Existing numeric range validation remains in place.
+
+node --check app.js passed. Local browser tests passed: northing 0 accepted; northing 123 accepted; padded 0000123 produces the same result; northing 10000001 rejected with cleared outputs.
+
+UTM zone/band combinations and band/northing consistency remain unresolved. These tests verify input handling, not independent coordinate accuracy. Published PWA and generated www assets remain unchanged.
