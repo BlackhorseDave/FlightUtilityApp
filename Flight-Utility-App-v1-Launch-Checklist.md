@@ -163,3 +163,12 @@ node --check app.js passed. Local Chrome tests at http://127.0.0.1:8001/ passed 
 
 Phone testing and broader release checks remain outstanding. Published PWA and generated www assets have not been updated.
 
+2026-10-23 — Stale coordinate results fix and local verification
+
+Updated wireCoordinates() so direct typing, keyboard deletion/paste, custom keypad entry/backspace, and the app's PASTE button clear previous results and reset status to Ready. PASTE now waits for PARSE rather than automatically converting. Clear and failed parsing leave every output as a dash. COPY leaves the clipboard unchanged when outputs are cleared.
+
+node --check app.js passed. Local browser tests at http://127.0.0.1:8001/ passed: typing invalidation, stale-copy prevention, custom keypad entry, custom backspace, app PASTE, Ctrl+V, Clear, invalid-input parsing, recovery with valid input, copying fresh results, and physical-keyboard Backspace.
+
+Changes reviewed in GitHub Desktop and confirmed confined to wireCoordinates(). Phone testing, published PWA updates, and generated www assets remain outstanding.
+
+Follow-up: the pushed fuel Clear handler appears inconsistent with the earlier reset requirement; inspect and retest before release. Other outstanding release work remains unfinished.

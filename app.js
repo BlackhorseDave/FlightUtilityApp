@@ -822,13 +822,19 @@ function wireCoordinates() {
       "coordDdm",
       "coordDms",
       "coordCompact",
+      "coordUtm",
+      "coordMgrs",
     ]) {
       setText(id, "-");
     }
-
-    setText("coordUtm", STATUS_BROWSER_GEODESY_PENDING);
-    setText("coordMgrs", STATUS_BROWSER_GEODESY_PENDING);
   }
+
+  function invalidateResults() {
+    clearOutputs();
+    setStatus(status, STATUS_READY);
+  }
+
+  input.addEventListener("input", invalidateResults);
 
   function focusInput() {
     input.focus({ preventScroll: true });
@@ -840,7 +846,7 @@ function wireCoordinates() {
 
     input.setRangeText(text, start, end, "end");
     focusInput();
-    setStatus(status, STATUS_READY);
+    invalidateResults();
   }
 
   function backspaceInput() {
@@ -854,7 +860,7 @@ function wireCoordinates() {
     }
 
     focusInput();
-    setStatus(status, STATUS_READY);
+    invalidateResults();
   }
 
   function clearInput() {
@@ -893,7 +899,7 @@ function wireCoordinates() {
   async function pasteInput() {
     try {
       input.value = await navigator.clipboard.readText();
-      parseInput();
+      invalidateResults();
     } catch {
       setStatus(status, "Paste is blocked by this browser", true);
     }
