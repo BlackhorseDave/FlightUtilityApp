@@ -295,6 +295,9 @@ function fail(message) {
 }
 
 function validateRange(latDd, lonDd) {
+  if (!Number.isFinite(latDd) || !Number.isFinite(lonDd)) {
+    fail(STATUS_INVALID_COORDINATE);
+  }
   if (latDd < -90 || latDd > 90) fail(STATUS_LAT_RANGE);
   if (lonDd < -180 || lonDd > 180) fail(STATUS_LON_RANGE);
 }

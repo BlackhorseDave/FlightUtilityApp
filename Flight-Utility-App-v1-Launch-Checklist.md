@@ -270,3 +270,11 @@ Added a latitude-band overlap check using the cell bounds returned by the bundle
 node --check app.js passed. Local tests passed: 31UDC1234 rejected; 31UDQ1234 accepted; boundary-overlapping 31VEC00 accepted; 31UEC01 rejected; southern mismatch 31LEC00 rejected; valid southern 31LEJ00 accepted.
 
 This check relies on the bundled library's returned bounds. Independent verification of cell geometry, zone-boundary behaviour, and coordinate accuracy remains outstanding. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — Non-finite coordinate validation
+
+Added Number.isFinite() checks inside validateRange() to reject non-finite latitude or longitude values before ordinary range comparisons.
+
+node --check app.js passed. Normal coordinate parsing regression passed. Direct browser Console tests passed: NaN latitude and Infinity longitude report "Invalid coordinate format"; longitude 181 retains "Longitude out of range".
+
+Other release checks, independent accuracy verification, and offline readiness remain outstanding. Published PWA and generated www assets remain unchanged.
