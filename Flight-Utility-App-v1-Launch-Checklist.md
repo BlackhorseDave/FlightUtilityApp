@@ -230,3 +230,11 @@ Updated the calculator to report "Cannot divide by zero" for a zero divisor. The
 node --check app.js passed. Local browser tests passed: 8 ÷ 0 and 0 ÷ 0 show the specific error; Clear followed by 8 ÷ 2 returns 4 successfully; incomplete expression 8 + retains "Invalid time format".
 
 Other release work remains outstanding. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — Initial coordinate display wording
+
+Replaced the initial UTM and MGRS "Browser build: pending geodesy support" text in root index.html with dashes.
+
+Local browser tests passed: initial coordinate display shows dashes; parsing valid coordinates still produces UTM and MGRS values with successful status.
+
+Runtime geodesy error wording and other release work remain outstanding. Published PWA and generated www assets remain unchanged.
