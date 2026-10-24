@@ -222,3 +222,11 @@ node --check app.js passed. Local tests covered northern and southern band misma
 Testing exposed an accepted southern boundary input that produced a coverage error in the output formatter. After correction, both 80°S and 84°N boundary inputs produced UTM and MGRS values. Inputs beyond tolerance at both coverage limits were rejected. Final band-mismatch regression passed.
 
 Independent coordinate accuracy, remaining parser validation, and other release checks remain outstanding. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — Division-by-zero message
+
+Updated the calculator to report "Cannot divide by zero" for a zero divisor. The evaluate() error handler now displays the supplied error message, retaining "Invalid time format" for malformed expressions.
+
+node --check app.js passed. Local browser tests passed: 8 ÷ 0 and 0 ÷ 0 show the specific error; Clear followed by 8 ÷ 2 returns 4 successfully; incomplete expression 8 + retains "Invalid time format".
+
+Other release work remains outstanding. Published PWA and generated www assets remain unchanged.

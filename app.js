@@ -751,7 +751,7 @@ function evaluateDurationExpression(expression) {
     else if (op === "-") values.push(left - right);
     else if (op === "*") values.push(left * right);
     else if (op === "/") {
-      if (Math.abs(right) < 1e-12) fail(STATUS_INVALID_TIME);
+      if (Math.abs(right) < 1e-12) fail("Cannot divide by zero");
       values.push(left / right);
     } else fail(STATUS_INVALID_TIME);
   }
@@ -1135,9 +1135,9 @@ function wireTime() {
       expression = resultValue;
       resultShown = true;
       setStatus(status, STATUS_TIME_SUCCESS);
-    } catch {
+    } catch (error) {
       resultEl.textContent = "Error";
-      setStatus(status, STATUS_INVALID_TIME, true);
+      setStatus(status, error.message || STATUS_INVALID_TIME, true);
     }
   }
 
