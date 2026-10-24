@@ -240,10 +240,29 @@ function utmToLatLon(zoneNumber, zoneLetter, easting, northing) {
       120) /
     cosFp;
 
-  const latDd = latRad * 180 / Math.PI;
+  let latDd = latRad * 180 / Math.PI;
   const lonDd = lonOrigin + lonRad * 180 / Math.PI;
 
   validateRange(latDd, lonDd);
+
+  const bands = "CDEFGHJKLMNPQRSTUVWX";
+  const bandIndex = bands.indexOf(zoneLetter);
+  const bandSouth = -80 + bandIndex * 8;
+  const bandNorth = zoneLetter === "X" ? 84 : bandSouth + 8;
+  const bandTolerance = 0.00001;
+
+  if (
+    latDd < bandSouth - bandTolerance ||
+    latDd > bandNorth + bandTolerance
+  ) {
+    fail("UTM latitude does not match band letter");
+  }
+
+  if (latDd < -80 && latDd >= -80 - bandTolerance) {
+    latDd = -80;
+  } else if (latDd > 84 && latDd <= 84 + bandTolerance) {
+    latDd = 84;
+  }
 
   return {
     latitudeDd: latDd,

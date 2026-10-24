@@ -212,3 +212,13 @@ Updated utmToLatLon() to reject the nonexistent grid-zone combinations 32X, 34X,
 node --check app.js passed. Local browser tests passed: 32X, 34X, and 36X rejected with cleared outputs; valid 33X and 32V inputs still accepted.
 
 Band/northing consistency and other coordinate validation remain outstanding. These checks do not establish independent coordinate accuracy. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — UTM latitude-band consistency and coverage boundaries
+
+Updated utmToLatLon() to reject calculated latitudes outside the supplied band, allowing a tolerance of 0.00001 degrees (approximately 1.1 metres) for rounded input. Accepted rounding overshoots at 80°S and 84°N are clamped to the exact coverage boundary.
+
+node --check app.js passed. Local tests covered northern and southern band mismatches, valid N/L/X inputs, and rounded input near the 8°N band boundary.
+
+Testing exposed an accepted southern boundary input that produced a coverage error in the output formatter. After correction, both 80°S and 84°N boundary inputs produced UTM and MGRS values. Inputs beyond tolerance at both coverage limits were rejected. Final band-mismatch regression passed.
+
+Independent coordinate accuracy, remaining parser validation, and other release checks remain outstanding. Published PWA and generated www assets remain unchanged.
