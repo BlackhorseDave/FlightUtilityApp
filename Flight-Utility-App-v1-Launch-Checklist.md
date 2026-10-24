@@ -204,3 +204,11 @@ Updated parseDecimalDegrees() to accept either a comma or whitespace between the
 node --check app.js passed. Local browser tests passed: space-separated coordinates; space-separated coordinates with mathematical minus signs; rejection of an extra third number; existing comma-separated input; rejection of latitude 91.
 
 UTM zone/band validation and other release checks remain outstanding. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — Invalid UTM grid-zone combinations
+
+Updated utmToLatLon() to reject the nonexistent grid-zone combinations 32X, 34X, and 36X.
+
+node --check app.js passed. Local browser tests passed: 32X, 34X, and 36X rejected with cleared outputs; valid 33X and 32V inputs still accepted.
+
+Band/northing consistency and other coordinate validation remain outstanding. These checks do not establish independent coordinate accuracy. Published PWA and generated www assets remain unchanged.

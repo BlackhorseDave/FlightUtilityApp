@@ -150,6 +150,10 @@ function utmToLatLon(zoneNumber, zoneLetter, easting, northing) {
     fail(STATUS_INVALID_COORDINATE);
   }
 
+  if (zoneLetter === "X" && [32, 34, 36].includes(zoneNumber)) {
+    fail(STATUS_INVALID_COORDINATE);
+  }
+
   if (easting < 100000 || easting > 900000) {
     fail(STATUS_INVALID_COORDINATE);
   }
