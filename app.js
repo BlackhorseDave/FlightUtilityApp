@@ -576,7 +576,7 @@ function parseMgrs(text) {
 
   // Basic MGRS shape:
   // Zone number 1-60, band letter C-X excluding I/O, grid square, then even number of digits.
-  if (!/^[0-9]{1,2}[C-HJ-NP-X][A-HJ-NP-Z]{2}[0-9]{2,10}$/.test(cleaned)) {
+  if (!/^[0-9]{1,2}[C-HJ-NP-X][A-HJ-NP-Z]{2}(?:[0-9]{2}){1,5}$/.test(cleaned)) {
     return null;
   }
 

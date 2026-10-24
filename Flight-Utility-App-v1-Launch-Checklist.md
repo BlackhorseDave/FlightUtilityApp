@@ -246,3 +246,11 @@ Changed STATUS_BROWSER_GEODESY_PENDING's displayed text from "Browser build: pen
 node --check app.js passed. Local browser regression passed: valid input produces UTM and MGRS results with successful status. The unavailable-library path was not exercised.
 
 Other release work remains outstanding. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — MGRS numeric digit-count validation
+
+Updated parseMgrs() to require 2, 4, 6, 8, or 10 numeric digits after the grid-square letters, rejecting unequal easting/northing precision.
+
+node --check app.js passed. Local browser tests passed: three-digit and nine-digit inputs rejected with cleared outputs; two-digit, four-digit, and ten-digit inputs accepted as MGRS.
+
+MGRS zone/grid-letter validity and independent accuracy checks remain outstanding. Published PWA and generated www assets remain unchanged.
