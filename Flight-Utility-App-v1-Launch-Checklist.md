@@ -254,3 +254,11 @@ Updated parseMgrs() to require 2, 4, 6, 8, or 10 numeric digits after the grid-s
 node --check app.js passed. Local browser tests passed: three-digit and nine-digit inputs rejected with cleared outputs; two-digit, four-digit, and ten-digit inputs accepted as MGRS.
 
 MGRS zone/grid-letter validity and independent accuracy checks remain outstanding. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — MGRS zone and grid-letter validation
+
+Added validation in parseMgrs() before calling the bundled library: zones must be 1–60; combinations 32X, 34X, and 36X are rejected; grid-column letters must belong to the zone's repeating column set; grid-row letters must be A–V excluding I and O. lib/mgrs.js remains unchanged.
+
+node --check app.js passed. Local browser tests passed: zones 0 and 61 rejected; 32X, 34X, and 36X rejected; invalid column letters rejected in zones 31, 32, and 33; row W rejected; valid 31UDQ1234 accepted after the changes.
+
+MGRS cell/band consistency, independent coordinate accuracy, and other release checks remain outstanding. Published PWA and generated www assets remain unchanged.

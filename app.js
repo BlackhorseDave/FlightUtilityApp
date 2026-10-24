@@ -580,6 +580,29 @@ function parseMgrs(text) {
     return null;
   }
 
+  const zoneNumber = Number(cleaned.match(/^\d{1,2}/)[0]);
+
+  if (zoneNumber < 1 || zoneNumber > 60) {
+    fail(STATUS_INVALID_COORDINATE);
+  }
+
+  const zoneLetter = cleaned.match(/^\d{1,2}([C-HJ-NP-X])/)[1];
+
+  if (zoneLetter === "X" && [32, 34, 36].includes(zoneNumber)) {
+    fail(STATUS_INVALID_COORDINATE);
+  }
+
+  const gridLetters = cleaned.match(/^\d{1,2}[A-Z]([A-Z]{2})/)[1];
+  const columnSets = ["ABCDEFGH", "JKLMNPQR", "STUVWXYZ"];
+  const validColumns = columnSets[(zoneNumber - 1) % 3];
+
+  if (
+    !validColumns.includes(gridLetters[0]) ||
+    !"ABCDEFGHJKLMNPQRSTUV".includes(gridLetters[1])
+  ) {
+    fail(STATUS_INVALID_COORDINATE);
+  }
+
   const point = window.mgrs.toPoint(cleaned);
 
   if (!Array.isArray(point) || point.length < 2) {
