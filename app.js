@@ -13,7 +13,7 @@ const STATUS_TIME_SUCCESS = "Time calculation successful";
 const STATUS_INVALID_TIME = "Invalid time format";
 const STATUS_LONGITUDE_FORMAT_INVALID = "Longitude format invalid";
 const STATUS_INVALID_FUEL_NUMERIC = "Only numeric fuel values are allowed";
-const STATUS_BROWSER_GEODESY_PENDING = "Browser build: pending geodesy support";
+const STATUS_BROWSER_GEODESY_PENDING = "Coordinate conversion unavailable";
 
 const FUEL_DENSITY_KG_PER_L = {
   "Jet A": 0.80,

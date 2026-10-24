@@ -238,3 +238,11 @@ Replaced the initial UTM and MGRS "Browser build: pending geodesy support" text 
 Local browser tests passed: initial coordinate display shows dashes; parsing valid coordinates still produces UTM and MGRS values with successful status.
 
 Runtime geodesy error wording and other release work remain outstanding. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — Runtime coordinate availability wording
+
+Changed STATUS_BROWSER_GEODESY_PENDING's displayed text from "Browser build: pending geodesy support" to "Coordinate conversion unavailable". The constant name and conversion logic remain unchanged.
+
+node --check app.js passed. Local browser regression passed: valid input produces UTM and MGRS results with successful status. The unavailable-library path was not exercised.
+
+Other release work remains outstanding. Published PWA and generated www assets remain unchanged.
