@@ -262,3 +262,11 @@ Added validation in parseMgrs() before calling the bundled library: zones must b
 node --check app.js passed. Local browser tests passed: zones 0 and 61 rejected; 32X, 34X, and 36X rejected; invalid column letters rejected in zones 31, 32, and 33; row W rejected; valid 31UDQ1234 accepted after the changes.
 
 MGRS cell/band consistency, independent coordinate accuracy, and other release checks remain outstanding. Published PWA and generated www assets remain unchanged.
+
+2026-10-23 — MGRS cell/band consistency
+
+Added a latitude-band overlap check using the cell bounds returned by the bundled library's inverse() function. Cells wholly outside the supplied band are rejected with "MGRS cell does not match band letter". A tolerance of 0.00001 degrees is allowed.
+
+node --check app.js passed. Local tests passed: 31UDC1234 rejected; 31UDQ1234 accepted; boundary-overlapping 31VEC00 accepted; 31UEC01 rejected; southern mismatch 31LEC00 rejected; valid southern 31LEJ00 accepted.
+
+This check relies on the bundled library's returned bounds. Independent verification of cell geometry, zone-boundary behaviour, and coordinate accuracy remains outstanding. Published PWA and generated www assets remain unchanged.

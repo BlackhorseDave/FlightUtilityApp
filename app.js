@@ -603,7 +603,22 @@ function parseMgrs(text) {
     fail(STATUS_INVALID_COORDINATE);
   }
 
+  const cellBounds = window.mgrs.inverse(cleaned);
   const point = window.mgrs.toPoint(cleaned);
+
+  const bands = "CDEFGHJKLMNPQRSTUVWX";
+  const bandSouth = -80 + bands.indexOf(zoneLetter) * 8;
+  const bandNorth = zoneLetter === "X" ? 84 : bandSouth + 8;
+  const bandTolerance = 0.00001;
+  const cellSouth = Math.min(cellBounds[1], cellBounds[3]);
+  const cellNorth = Math.max(cellBounds[1], cellBounds[3]);
+
+  if (
+    cellNorth < bandSouth - bandTolerance ||
+    cellSouth > bandNorth + bandTolerance
+  ) {
+    fail("MGRS cell does not match band letter");
+  }
 
   if (!Array.isArray(point) || point.length < 2) {
     fail(STATUS_INVALID_COORDINATE);
