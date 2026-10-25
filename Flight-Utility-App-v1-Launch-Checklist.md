@@ -324,3 +324,14 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Clarified that display precision does not establish positional accuracy; independent accuracy verification remains pending.
 - Reviewed the README preview; the coordinate table and coverage section displayed correctly.
 
+### October 25 — MGRS attribution and offline notice verification
+
+- Matched bundled `lib/mgrs.js` to proj4js/mgrs commit `249d933d2e336eebf4b8b6288eba8d4f2525f876`, accounting for removed export keywords, whitespace, and the Flight Utility browser wrapper.
+- Added `THIRD-PARTY-NOTICES.md` containing the upstream copyright and full MIT license, which permits commercial use subject to its notice requirements.
+- Added source attribution to `lib/mgrs.js`.
+- Updated `prepare-web.cjs` to include the notice in future `www` preparation and report the file count dynamically.
+- Added the notice to service worker cache v23.
+- Syntax checks passed for `lib/mgrs.js`, `prepare-web.cjs`, and `sw.js`.
+- Confirmed the notice appears in cache v23 and its full text can be retrieved with the local HTTP server stopped.
+- Generated `www` assets, native packages, and published GitHub Pages remain unchanged. Inclusion of the notice in final distributions still requires verification.
+

@@ -1,4 +1,4 @@
-const CACHE_NAME = "flight-utility-pwa-v22";
+const CACHE_NAME = "flight-utility-pwa-v23";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const APP_ASSETS = [
   "./app.js",
   "./manifest.webmanifest",
   "./lib/mgrs.js",
+  "./THIRD-PARTY-NOTICES.md",
   "./icons/icon-192.svg",
   "./icons/icon-512.svg",
 ];

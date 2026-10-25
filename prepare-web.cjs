@@ -8,15 +8,17 @@
 /* 08 */   "manifest.webmanifest",
 /* 09 */   "sw.js",
 /* 10 */   "lib/mgrs.js",
+/* 10 */   "THIRD-PARTY-NOTICES.md",
 /* 11 */   "icons/icon-192.svg",
 /* 12 */   "icons/icon-512.svg",
-/* 13 */ ];
+/* 13 */];
 /* 14 */
 /* 15 */ for (const file of files) {
 /* 16 */   const source = path.join(__dirname, file);
 /* 17 */   const destination = path.join(__dirname, "www", file);
 /* 18 */   fs.mkdirSync(path.dirname(destination), { recursive: true });
 /* 19 */   fs.copyFileSync(source, destination);
-/* 20 */ }
+    /* 20 */
+}
 /* 21 */
-/* 22 */ console.log("Copied 8 web files into www.");
+/* 22 */ console.log(`Copied ${files.length} web files into www.`);

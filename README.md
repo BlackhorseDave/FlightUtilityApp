@@ -64,6 +64,6 @@ UTM and MGRS conversion are implemented in the browser app. MGRS uses the bundle
 
 Local desktop tests passed for offline reload, calculations in all three tabs, missing-cache detection, cache recovery, and the readiness-check timeout. These results do not establish phone or native-app readiness.
 
-Outstanding release work is tracked in Flight-Utility-App-v1-Launch-Checklist.md, including independent coordinate accuracy checks, fuel-density and coordinate documentation, MGRS commercial license and notices, regression testing, and final release verification.
+Outstanding release work is tracked in Flight-Utility-App-v1-Launch-Checklist.md, including independent coordinate accuracy checks, fuel-density and coordinate documentation, verification that MGRS license notices are included in final web and native distributions, regression testing, and final release verification.
 
 The published GitHub Pages app and generated www assets have not yet been updated with the current release fixes.
