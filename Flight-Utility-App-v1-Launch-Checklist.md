@@ -295,3 +295,7 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Recovery passed: unregistered the localhost service worker and reloaded with the server running; "Offline ready" returned.
 - Timeout testing, published GitHub Pages verification, generated www assets, phone tests, and native-app offline verification remain pending.
 - This is a local verification checkpoint, not release readiness approval.
+
+- Timeout test passed: temporarily used an unanswered readiness request; after 10 seconds the app displayed "Offline readiness unconfirmed".
+- Restored the original request, disabled DevTools "Bypass for network", and reloaded; "Offline ready" returned.
+- Published GitHub Pages verification, generated www assets, phone tests, and native-app offline verification remain pending.
