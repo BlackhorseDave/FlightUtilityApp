@@ -316,3 +316,11 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Checked the README preview; the density table displayed correctly.
 - This documents the current implementation; independent validation of the density assumptions remains pending.
 
+### October 25, 2026 — Coordinate assumptions documented
+
+- Documented the WGS84 ellipsoid used for UTM calculations and the absence of datum transformations.
+- Recorded display precision for DD, DDM, DMS, compact aviation DMS, UTM, and MGRS.
+- Documented latitude/longitude limits, UTM-based coverage from 80°S to 84°N, and unsupported polar UPS coordinates.
+- Clarified that display precision does not establish positional accuracy; independent accuracy verification remains pending.
+- Reviewed the README preview; the coordinate table and coverage section displayed correctly.
+

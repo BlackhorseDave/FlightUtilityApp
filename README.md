@@ -39,6 +39,25 @@ The app does not adjust density for temperature or a measured fuel sample. Resul
 
 Conversion constants: 1 pound = 0.45359237 kilograms; 1 US gallon = 3.785411784 litres; 1 Imperial gallon = 4.54609 litres.
 
+## Coordinate assumptions and display precision
+
+UTM calculations use WGS84 ellipsoid constants. The app does not transform coordinates between datums; input coordinates must already use the intended WGS84 reference.
+
+| Output format | Display precision |
+| --- | --- |
+| Decimal Degrees | 6 decimal places |
+| Degrees and Decimal Minutes | 3 decimal places in minutes |
+| Degrees/Minutes/Seconds | 2 decimal places in seconds |
+| Compact aviation DMS | 2 decimal places in seconds |
+| UTM | Easting and northing rounded to whole metres |
+| MGRS | 5 digits each for easting and northing |
+
+Displayed decimal places describe formatting, not independently verified positional accuracy.
+
+### Coordinate coverage
+
+Latitude/longitude inputs are limited to 90°S–90°N and 180°W–180°E. UTM and the app's UTM-based MGRS conversions are limited to 80°S–84°N, inclusive. Polar UPS coordinates are not supported.
+
 ## Verification status
 
 UTM and MGRS conversion are implemented in the browser app. MGRS uses the bundled lib/mgrs.js file.
