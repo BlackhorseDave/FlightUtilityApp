@@ -24,6 +24,21 @@ Run the server command from the project root, where index.html and app.js are lo
 - Coordinate results are cleared when input changes; PARSE must succeed before results can be copied.
 - PWA manifest and service worker, with an offline status check that verifies the listed app assets are cached.
 
+## Fuel conversion assumptions
+
+Mass-to-volume conversions use these fixed densities:
+
+| Fuel | Density (kg/L) |
+| --- | ---: |
+| Jet A | 0.80 |
+| Avgas | 0.72 |
+| Regular Gasoline | 0.74 |
+| Diesel | 0.84 |
+
+The app does not adjust density for temperature or a measured fuel sample. Results reflect these fixed assumptions.
+
+Conversion constants: 1 pound = 0.45359237 kilograms; 1 US gallon = 3.785411784 litres; 1 Imperial gallon = 4.54609 litres.
+
 ## Verification status
 
 UTM and MGRS conversion are implemented in the browser app. MGRS uses the bundled lib/mgrs.js file.

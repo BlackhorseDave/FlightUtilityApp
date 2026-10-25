@@ -307,3 +307,12 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Removed the obsolete claim that browser UTM/MGRS conversion is unimplemented.
 - Clarified local-server limits, phone testing, pending release verification, and the unchanged published app and generated www assets.
 - Reviewed the Markdown preview and README diff; formatting was readable.
+
+### October 25, 2026 — Fuel conversion assumptions documented
+
+- Documented the fixed densities used in app.js: Jet A 0.80, Avgas 0.72, Regular Gasoline 0.74, and Diesel 0.84 kg/L.
+- Recorded the pound, US gallon, and Imperial gallon conversion constants.
+- Clarified that density is not adjusted for temperature or a measured fuel sample.
+- Checked the README preview; the density table displayed correctly.
+- This documents the current implementation; independent validation of the density assumptions remains pending.
+
