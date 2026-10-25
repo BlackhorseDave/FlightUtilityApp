@@ -335,3 +335,15 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Confirmed the notice appears in cache v23 and its full text can be retrieved with the local HTTP server stopped.
 - Generated `www` assets, native packages, and published GitHub Pages remain unchanged. Inclusion of the notice in final distributions still requires verification.
 
+### October 25 — Offline cache-version verification
+
+- Added cacheName to both service-worker readiness responses.
+- Updated app.js to require the expected v24 cache before displaying "Offline ready"; a missing or different cache name displays "Offline version unconfirmed".
+- Updated the service-worker cache to v24.
+- Syntax checks passed for app.js and sw.js.
+- Normal localhost reload displayed "Offline ready", and cache v24 appeared in Chrome DevTools.
+- With the local server stopped, reload passed and displayed "Offline ready".
+- A simulated v23 readiness response displayed "Offline version unconfirmed"; offline reload restored "Offline ready".
+- Restarted the local HTTP server after testing.
+- This verifies response-version checking, not detection of every failed update. An older cached app may still confirm its own older cache. An actual failed-update test remains outstanding.
+- Generated www assets, native packages, and published GitHub Pages remain unchanged.

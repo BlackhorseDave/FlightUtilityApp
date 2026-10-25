@@ -1,4 +1,4 @@
-const CACHE_NAME = "flight-utility-pwa-v23";
+const CACHE_NAME = "flight-utility-pwa-v24";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -56,12 +56,14 @@ self.addEventListener("message", (event) => {
       .then((assets) => {
         event.source?.postMessage({
           type: "OFFLINE_READY_RESULT",
+          cacheName: CACHE_NAME,
           ready: assets.every(Boolean),
         });
       })
       .catch(() => {
         event.source?.postMessage({
           type: "OFFLINE_READY_RESULT",
+          cacheName: CACHE_NAME,
           ready: false,
         });
       })

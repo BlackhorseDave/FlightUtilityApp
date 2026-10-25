@@ -1197,6 +1197,7 @@ function wireTime() {
 
 function registerServiceWorker() {
   const installState = $("#installState");
+  const expectedCacheName = "flight-utility-pwa-v24";
 
   if (!("serviceWorker" in navigator)) {
     installState.textContent = "Offline unavailable";
@@ -1211,9 +1212,14 @@ function registerServiceWorker() {
     if (event.data?.type !== "OFFLINE_READY_RESULT") return;
 
     clearTimeout(timeout);
-    installState.textContent = event.data.ready
-      ? "Offline ready"
-      : "Offline files incomplete";
+    if (event.data.cacheName !== expectedCacheName) {
+  installState.textContent = "Offline version unconfirmed";
+  return;
+}
+
+installState.textContent = event.data.ready
+  ? "Offline ready"
+  : "Offline files incomplete";
   });
 
   navigator.serviceWorker.register("./sw.js")
