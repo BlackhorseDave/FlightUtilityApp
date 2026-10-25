@@ -278,3 +278,18 @@ Added Number.isFinite() checks inside validateRange() to reject non-finite latit
 node --check app.js passed. Normal coordinate parsing regression passed. Direct browser Console tests passed: NaN latitude and Infinity longitude report "Invalid coordinate format"; longitude 181 retains "Longitude out of range".
 
 Other release checks, independent accuracy verification, and offline readiness remain outstanding. Published PWA and generated www assets remain unchanged.
+
+### October 25, 2026 — Local offline readiness verification
+
+- Replaced the initial "Offline ready" label with "Checking offline readiness".
+- Added a service-worker message check that confirms all listed app assets are cached before displaying "Offline ready".
+- Added unavailable, incomplete-cache, and timeout status messages.
+- Updated the service-worker cache from v21 to v22.
+- Syntax checks passed for app.js and sw.js.
+- At http://localhost:8001/ in normal Chrome, stopped the local server and reloaded successfully; status remained "Offline ready".
+- With the server stopped, coordinate conversion including UTM and MGRS passed, Jet A 100 litres converted to 80.0 kg, and 1:30 + :45 returned 2:15.
+- Offline reload and calculation checks also passed in Incognito.
+- Local Python server required an explicit application/javascript MIME mapping for .js files.
+- Unresolved: normal Chrome at http://127.0.0.1:8001/ continued reporting a text/plain service-worker MIME error despite curl confirming application/javascript. Cause remains unconfirmed.
+- Incomplete-cache and timeout paths still require testing. Published GitHub Pages, generated www assets, phone tests, and native-app offline verification remain pending.
+- This is a local verification checkpoint, not release readiness approval.

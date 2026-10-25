@@ -1196,10 +1196,38 @@ function wireTime() {
 }
 
 function registerServiceWorker() {
-  if (!("serviceWorker" in navigator)) return;
-  navigator.serviceWorker.register("./sw.js").catch(() => {
-    $("#installState").textContent = "Online preview";
+  const installState = $("#installState");
+
+  if (!("serviceWorker" in navigator)) {
+    installState.textContent = "Offline unavailable";
+    return;
+  }
+
+  const timeout = setTimeout(() => {
+    installState.textContent = "Offline readiness unconfirmed";
+  }, 10000);
+
+  navigator.serviceWorker.addEventListener("message", (event) => {
+    if (event.data?.type !== "OFFLINE_READY_RESULT") return;
+
+    clearTimeout(timeout);
+    installState.textContent = event.data.ready
+      ? "Offline ready"
+      : "Offline files incomplete";
   });
+
+  navigator.serviceWorker.register("./sw.js")
+    .then(() => navigator.serviceWorker.ready)
+    .then((registration) => {
+      registration.active.postMessage({
+        type: "CHECK_OFFLINE_READY",
+      });
+    })
+    .catch((error) => {
+      console.error("Offline readiness check failed:", error);
+      clearTimeout(timeout);
+      installState.textContent = "Offline unavailable";
+    });
 }
 
 wireTabs();

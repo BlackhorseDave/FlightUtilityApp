@@ -1,4 +1,4 @@
-const CACHE_NAME = "flight-utility-pwa-v21";
+const CACHE_NAME = "flight-utility-pwa-v22";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -41,5 +41,28 @@ self.addEventListener("fetch", (event) => {
         throw new Error(`Offline asset unavailable: ${event.request.url}`);
       });
     })
+  );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data?.type !== "CHECK_OFFLINE_READY") return;
+
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) =>
+        Promise.all(APP_ASSETS.map((asset) => cache.match(asset)))
+      )
+      .then((assets) => {
+        event.source?.postMessage({
+          type: "OFFLINE_READY_RESULT",
+          ready: assets.every(Boolean),
+        });
+      })
+      .catch(() => {
+        event.source?.postMessage({
+          type: "OFFLINE_READY_RESULT",
+          ready: false,
+        });
+      })
   );
 });
