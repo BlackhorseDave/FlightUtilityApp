@@ -1,5 +1,5 @@
 # Flight Utility App — Version 1.0 Master Launch Checklist
-Updated: 2026-10-11. Publisher target: Blackhorse Creations Inc., subject to verified incorporation and organization enrollment.
+Updated: 2026-10-25. Publisher target: Blackhorse Creations Inc., subject to verified organization enrollment.
 
 ## Status rules
 Complete = evidence exists for the specific item, not full commercial readiness.
@@ -9,6 +9,7 @@ Not Started = no evidence of work is available. This may change when Dave provid
 No application code or GitHub files were changed during this review.
 
 ## Evidence and baseline
+The following baseline describes the October 11 initial review and is historical. Current development uses the capacitor-setup branch; the latest verified pushed checkpoint is 9b751ed (October 25). Later implementation, fixes and test evidence are recorded in Progress below.
 Reviewed GitHub default-branch latest commit 260163bef6b5d2d99cc28cc170e5af03cf020856, dated October 10, 2026: “Remove ForeFlight coordinate output and update cache to v21.”
 Read index.html, app.js, sw.js, manifest.webmanifest, README.md and the lib directory.
 Repository: https://github.com/BlackhorseDave/FlightUtilityApp
@@ -26,19 +27,20 @@ October incorporation application activity is known; no incorporation certificat
 | Initial source and history review | Complete | Current source and latest commit reviewed; device review still required below. |
 | Time, fuel and coordinate functions implemented | Complete | Present in current app.js and interface; implementation is not accuracy sign-off. |
 | Custom coordinate keypad, copy buttons, ForeFlight removal | Complete | Current interface and commit history confirm. |
-| Bug inventory and prioritization | In Progress | Initial release concerns recorded below; reproduce before assigning confirmed defects. |
-| Essential time and fuel calculations verified | In Progress | Prior working reports; exact-build expected/actual test record required. |
+| Bug inventory and prioritization | In Progress | Baseline defects and subsequent fixes/retests recorded in Progress. Remaining concerns include failed-update behaviour, independent coordinate accuracy and MGRS geometry, final limitations wording, and device/native verification. |
+| Essential time and fuel calculations verified | In Progress | T01–T16 and F01–F14 baseline tests recorded; division-by-zero wording and fuel input/Clear fixes passed local retests. Final regression on the release build and phone verification remain pending. |
 | Independent coordinate accuracy verification | In Progress | Earlier boundary tests exist; validate against independent authoritative conversion references with agreed tolerances. |
-| Invalid, unusual and edge input tests | In Progress | Earlier parser tests; repeat release cases, including poles, zone edges, rounding, malformed UTM/MGRS, overflow and division by zero. |
-| PWA offline operation verified | In Progress | Cache code includes local dependencies; airplane-mode close/reopen testing required on devices. |
+| Invalid, unusual and edge input tests | In Progress | C01–C41 baseline tests and local retests of coordinate input, UTM/MGRS validation, non-finite values and division-by-zero handling recorded in Progress. Independent MGRS cell geometry and zone-boundary checks, plus final release regression, remain pending. |
+| PWA offline operation verified | In Progress | Local desktop offline reload and calculations passed; incomplete-cache, timeout, v24 cache-version mismatch and recovery checks passed. Actual failed-update testing, published PWA verification and phone airplane-mode close/reopen tests remain pending. |
 | Cockpit readability and usability review | In Progress | Existing refinements; assess glare, contrast, font size, touch targets, orientation and long outputs on devices. |
-| Remove development wording and clutter | Not Started | README is stale; initial/cleared UTM/MGRS fields show pending wording; manifest says testing. |
+| Remove development wording and clutter | In Progress | Initial coordinate placeholders, runtime availability wording, README and manifest description updated. Final wording review of generated web and native builds remains pending. |
 | Confirm essential feature freeze | In Progress | Recommend retaining current utility scope; Dave's review pending. |
-| Stable Version 1.0 Git checkpoint | Blocked | Await acceptance tests and required fixes; current v21 commit is a baseline, not a release tag. |
-| Library provenance and commercial license check | Not Started | Confirm mgrs source/version, license obligations and notices. |
-| Aviation assumptions and limitations | Not Started | Document fixed fuel densities, WGS84 datum, precision, supported formats and UTM/MGRS coverage. |
+| Stable Version 1.0 Git checkpoint | Blocked | Development checkpoint 9b751ed pushed on capacitor-setup. Final release checkpoint awaits independent accuracy checks, release-build regression and required device/offline verification; no Version 1.0 release tag created. |
+| Library provenance and commercial license check | In Progress | Bundled MGRS source matched to upstream revision; attribution and full MIT notice added and verified in local offline cache. Notice inclusion in generated web and final native distributions remains pending. |
+| Aviation assumptions and limitations | In Progress | README documents fixed fuel densities, conversion constants, WGS84 assumptions, display precision, supported formats and coverage. Independent validation of density assumptions and coordinate accuracy, plus final in-app limitations review, remain pending. |
 
 ## Initial release concerns
+These concerns describe the initial review. Several have since been resolved; see the Progress record and updated Phase 1 statuses for completed fixes and remaining verification.
 - Pending-geodesy text is hard-coded in index.html and also restored on Clear/error in app.js. It can appear in a packaged app unless adjusted; packaging does not remove strings automatically. This is wording cleanup, not evidence geodesy is absent.
 - Fuel volume/mass conversions use fixed assumed densities: Jet A 0.80, Avgas 0.72, regular gasoline 0.74, diesel 0.84 kg/L. They are estimates; the interface currently has no density limitation explanation.
 - “Offline ready” is initially displayed before successful caching is confirmed. Verify this claim matches actual readiness.
@@ -50,9 +52,9 @@ These are review items, not a claim that every item is a confirmed calculation b
 ## Phase 2 — Shared business and developer accounts
 | Item | Status | Evidence / dependency |
 |---|---|---|
-| Verify incorporation approval and exact legal name | In Progress | Application activity known; certificate/status confirmation needed. |
-| D-U-N-S number obtained | Complete | Earlier user confirmation; no number needs to be shared in chat. |
-| Match D-U-N-S entity name/address to corporation | Blocked | Confirm incorporation and D&B record; do not assume earlier sole-proprietor record is sufficient. |
+| Verify incorporation approval and exact legal name | Complete | Dave confirmed receipt of the Manitoba incorporation certificate for Blackhorse Creations Inc. |
+| D-U-N-S number obtained | In Progress | Earlier number reported; updated corporate D-U-N-S record was pending at last confirmation. Receipt and matching corporate details still require confirmation. |
+| Match D-U-N-S entity name/address to corporation | In Progress | Incorporation confirmed; updated D&B record for Blackhorse Creations Inc. was pending at last confirmation. Verify matching legal name and address before organization enrollment. |
 | Company website and business contact details | Not Started | Public functional corporate site and domain email needed for Apple organization enrollment. |
 | Apple Developer organization enrollment | Blocked | Legal entity, matching D-U-N-S, authority and company website/contact prerequisites. |
 | Google Play organization registration | Blocked | Verified organization identity and D-U-N-S prerequisites. |
@@ -63,9 +65,9 @@ Shared with English Practice Companion: incorporation, D&B identity, corporate d
 ## Phase 3 — Native application preparation
 | Item | Status | Dependency |
 |---|---|---|
-| Compare Capacitor and suitable alternatives | In Progress | Earlier conceptual discussions; no final selection. |
-| Select simplest reliable approach | Not Started | Compare offline local-asset packaging, shared code, maintenance and review suitability. |
-| Identify and make necessary PWA adaptations | Not Started | Decide packaging; audit service worker behavior, clipboard, navigation and safe areas. |
+| Compare Capacitor and suitable alternatives | Complete | Approach reviewed and Capacitor selected. Reconsider only if a demonstrated release blocker requires it. |
+| Select simplest reliable approach | Complete | Capacitor selected to package the existing HTML/CSS/JavaScript app while preserving the PWA. Setup work is recorded on capacitor-setup; native build and release acceptance remain separate checks. |
+| Identify and make necessary PWA adaptations | In Progress | Capacitor configuration and prepare-web.cjs exist. Current root-file fixes have not yet been copied into www. Native service-worker behaviour, clipboard, navigation and safe-area handling still require review and testing. |
 | Preserve native offline operation | Not Started | Bundle assets locally; test first launch without a connection, not only previously cached use. |
 | Native icons, splash screens, identifiers and permissions | Not Started | Existing SVG PWA icons are source assets, not verified store-ready assets. |
 | Android build and signing configuration | Not Started | Select packaging; meet current target API requirements; preserve signing credentials. |
@@ -136,9 +138,13 @@ Both paths join at store submissions → approvals → live purchase/offline ver
 The corporate site belongs early because Apple enrollment needs it; the product site can be developed later.
 
 ## First practical step
-After checklist review, confirm whether the Manitoba incorporation certificate has arrived and the exact legal company name shown on it. No payment, banking or identity numbers are needed.
-This resolves the earliest shared publishing dependency. If approval is still pending, the next agreed work session can focus on the v21 release acceptance tests.
-Proceed one step at a time; wait for Dave's confirmation before moving to another task.
+Incorporation is confirmed. Continue release verification from the latest pushed capacitor-setup checkpoint, using the Progress record to avoid repeating completed work.
+
+Remaining product work includes independent coordinate accuracy and MGRS geometry checks, final regression testing, failed-update behaviour, preparing and verifying www assets and license notices, and physical-device/native offline testing.
+
+Confirm the updated corporate D-U-N-S record when available, then continue organization enrollment prerequisites.
+
+Proceed one small step at a time; wait for Dave's confirmation before moving to another task.
 
 ## Progress record
 2026-10-11: Established checklist, reviewed current repository baseline and official enrollment/review requirements. No application changes, commits, tags, purchases or enrollments made.
@@ -354,4 +360,13 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Description now reads: "Offline coordinate, fuel, and duration calculator for pilots."
 - JSON syntax validation passed.
 - The manifest change has not yet been incorporated into a new service-worker cache or generated www assets. Published GitHub Pages and native packages remain unchanged.
+
+### October 25 — Main checklist status reconciliation
+
+- Updated selected Phase 1 rows to reflect completed fixes, documentation and local testing while retaining unfinished release checks.
+- Marked the original baseline and initial concerns as historical.
+- Recorded confirmed incorporation and the pending status of the updated corporate D-U-N-S record.
+- Recorded Capacitor selection and existing preparation work.
+- Replaced the outdated first practical step with current remaining work.
+- Historical Progress entries remain unchanged. This review does not establish final release readiness.
 
