@@ -347,3 +347,11 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Restarted the local HTTP server after testing.
 - This verifies response-version checking, not detection of every failed update. An older cached app may still confirm its own older cache. An actual failed-update test remains outstanding.
 - Generated www assets, native packages, and published GitHub Pages remain unchanged.
+
+### October 25 — Manifest description cleanup
+
+- Removed development/testing wording from the root manifest description.
+- Description now reads: "Offline coordinate, fuel, and duration calculator for pilots."
+- JSON syntax validation passed.
+- The manifest change has not yet been incorporated into a new service-worker cache or generated www assets. Published GitHub Pages and native packages remain unchanged.
+

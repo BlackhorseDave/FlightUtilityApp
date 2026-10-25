@@ -1,7 +1,7 @@
 {
   "name": "Flight Utility",
   "short_name": "Flight Utility",
-  "description": "Offline coordinate, fuel, and duration calculator for flight utility testing.",
+  "description": "Offline coordinate, fuel, and duration calculator for pilots.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
