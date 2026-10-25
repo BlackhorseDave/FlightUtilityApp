@@ -299,3 +299,11 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Timeout test passed: temporarily used an unanswered readiness request; after 10 seconds the app displayed "Offline readiness unconfirmed".
 - Restored the original request, disabled DevTools "Bypass for network", and reloaded; "Offline ready" returned.
 - Published GitHub Pages verification, generated www assets, phone tests, and native-app offline verification remain pending.
+
+### October 25, 2026 — README refresh
+
+- Updated the app description, Windows local-server command, port, and browser address.
+- Documented current time, fuel, coordinate, and offline-status behaviour.
+- Removed the obsolete claim that browser UTM/MGRS conversion is unimplemented.
+- Clarified local-server limits, phone testing, pending release verification, and the unchanged published app and generated www assets.
+- Reviewed the Markdown preview and README diff; formatting was readable.
