@@ -291,5 +291,7 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Offline reload and calculation checks also passed in Incognito.
 - Local Python server required an explicit application/javascript MIME mapping for .js files.
 - Unresolved: normal Chrome at http://127.0.0.1:8001/ continued reporting a text/plain service-worker MIME error despite curl confirming application/javascript. Cause remains unconfirmed.
-- Incomplete-cache and timeout paths still require testing. Published GitHub Pages, generated www assets, phone tests, and native-app offline verification remain pending.
+- - Incomplete-cache test passed: removed the cached icon-512.svg entry and reloaded; the app displayed "Offline files incomplete".
+- Recovery passed: unregistered the localhost service worker and reloaded with the server running; "Offline ready" returned.
+- Timeout testing, published GitHub Pages verification, generated www assets, phone tests, and native-app offline verification remain pending.
 - This is a local verification checkpoint, not release readiness approval.
