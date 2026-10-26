@@ -370,3 +370,24 @@ Other release checks, independent accuracy verification, and offline readiness r
 - Replaced the outdated first practical step with current remaining work.
 - Historical Progress entries remain unchanged. This review does not establish final release readiness.
 
+### October 25 — Day/night display option and local verification
+
+- Added a Day/Night mode button beside the offline-status label, with matching height and font size.
+- Button text names the mode available to switch to.
+- Theme preference is stored locally; switching remains available if preference storage fails.
+- Added a night palette and adjusted tabs, calculator display, inputs, labels, Copy buttons and calculator keys for theme readability.
+- Updated the service-worker cache and app's expected cache name to v27.
+- Syntax checks passed for app.js and sw.js.
+- Dave approved the night appearance across Time/Calculator, Fuel and Coordinates.
+- With the server stopped, reload retained night mode, displayed "Offline ready", and allowed switching between day and night.
+- Restarted the local HTTP server after testing.
+- Update observation: v24 remained active while newer files were being tested. A manual worker update check followed by reload restored readiness for v26. The later v27 update required approximately seven reloads before readiness confirmed. Cause remains unresolved; this is not a clean update-path acceptance result.
+- Physical-device readability, theme behaviour and native offline verification remain pending.
+- Generated www assets, native packages and published GitHub Pages have not been updated as part of this work.
+
+- Follow-up: corrected the header's closing div and placed the theme button and offline status together on a separate row below the title.
+- Verified that a temporarily displayed longer offline message wraps within the header at narrow desktop widths; the mode button stays alongside it.
+- Final cache and expected cache name updated to v28. Online reload returned "Offline ready".
+- With the server stopped, final v28 offline reload preserved the header layout, returned "Offline ready", and allowed Day/Night switching.
+- Restarted the local server after final testing.
+- At an extremely narrow desktop width, the Coordinates tab label was clipped; physical-phone layout verification remains pending.

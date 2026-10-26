@@ -1195,9 +1195,37 @@ function wireTime() {
   });
 }
 
+function wireTheme() {
+  const button = $("#themeToggle");
+  const root = document.documentElement;
+  const storageKey = "flight-utility-theme";
+
+  function applyTheme(theme) {
+    const night = theme === "night";
+    root.dataset.theme = night ? "night" : "day";
+    button.textContent = night ? "Day mode" : "Night mode";
+    button.setAttribute("aria-pressed", String(night));
+  }
+
+  let savedTheme = "day";
+  try {
+    savedTheme = localStorage.getItem(storageKey) || "day";
+  } catch { }
+
+  applyTheme(savedTheme);
+
+  button.addEventListener("click", () => {
+    const theme = root.dataset.theme === "night" ? "day" : "night";
+    applyTheme(theme);
+    try {
+      localStorage.setItem(storageKey, theme);
+    } catch { }
+  });
+}
+
 function registerServiceWorker() {
   const installState = $("#installState");
-  const expectedCacheName = "flight-utility-pwa-v24";
+  const expectedCacheName = "flight-utility-pwa-v28";
 
   if (!("serviceWorker" in navigator)) {
     installState.textContent = "Offline unavailable";
@@ -1213,13 +1241,13 @@ function registerServiceWorker() {
 
     clearTimeout(timeout);
     if (event.data.cacheName !== expectedCacheName) {
-  installState.textContent = "Offline version unconfirmed";
-  return;
-}
+      installState.textContent = "Offline version unconfirmed";
+      return;
+    }
 
-installState.textContent = event.data.ready
-  ? "Offline ready"
-  : "Offline files incomplete";
+    installState.textContent = event.data.ready
+      ? "Offline ready"
+      : "Offline files incomplete";
   });
 
   navigator.serviceWorker.register("./sw.js")
@@ -1236,6 +1264,7 @@ installState.textContent = event.data.ready
     });
 }
 
+wireTheme();
 wireTabs();
 wireCoordinates();
 wireFuel();
