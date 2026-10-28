@@ -1225,7 +1225,7 @@ function wireTheme() {
 
 function registerServiceWorker() {
   const installState = $("#installState");
-  const expectedCacheName = "flight-utility-pwa-v28";
+  const expectedCacheName = "flight-utility-pwa-v29";
 
   if (!("serviceWorker" in navigator)) {
     installState.textContent = "Offline unavailable";

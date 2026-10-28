@@ -1,4 +1,4 @@
-const CACHE_NAME = "flight-utility-pwa-v28";
+const CACHE_NAME = "flight-utility-pwa-v29";
 const APP_ASSETS = [
   "./",
   "./index.html",
@@ -9,6 +9,7 @@ const APP_ASSETS = [
   "./THIRD-PARTY-NOTICES.md",
   "./icons/icon-192.svg",
   "./icons/icon-512.svg",
+  "./icons/apple-touch-icon.png",
 ];
 
 self.addEventListener("install", (event) => {

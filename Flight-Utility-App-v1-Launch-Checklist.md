@@ -391,3 +391,17 @@ Other release checks, independent accuracy verification, and offline readiness r
 - With the server stopped, final v28 offline reload preserved the header layout, returned "Offline ready", and allowed Day/Night switching.
 - Restarted the local server after final testing.
 - At an extremely narrow desktop width, the Coordinates tab label was clipped; physical-phone layout verification remains pending.
+
+### October 27–28 — Published PWA device checks and Apple icon preparation
+
+- Changed GitHub Pages source to capacitor-setup / (root); deployment succeeded.
+- iPhone: Day/Night switching and preference persistence passed. In Airplane Mode, reload and sample time, fuel, UTM and MGRS calculations passed. Home Screen launch and fuel conversion also passed.
+- iPad: Home Screen launch displayed full screen. Airplane Mode close/reopen, fuel conversion and UTM/MGRS output checks passed.
+- These are basic PWA device checks, not independent coordinate accuracy or native-app acceptance.
+- iPad Home Screen icon showed an F while iPhone showed the compass; cause remains unconfirmed.
+- Created an opaque 180x180 compass PNG at icons/apple-touch-icon.png and updated the apple-touch-icon reference.
+- Added the PNG to offline assets; cache and expected cache names are flight-utility-pwa-v29.
+- app.js and sw.js syntax checks passed.
+- Corrected an accidental extra character in the service-worker cache name after a version mismatch. Offline ready returned; server-stopped reload passed.
+- Restarted the local server; Serving HTTP confirmed.
+- PNG fix remains unpublished and unverified on iPad. Generated www assets and native packages remain unchanged.
